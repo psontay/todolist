@@ -19,6 +19,7 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(1005, "Invalid username or password", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1006, "Unauthorized", HttpStatus.UNAUTHORIZED),
     FORBIDDEN(1007, "Forbidden", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(1008, "Unauthenticated", HttpStatus.UNAUTHORIZED),
 
     // TASK
     TASK_NOT_FOUND(2001, "Task not found", HttpStatus.NOT_FOUND),
