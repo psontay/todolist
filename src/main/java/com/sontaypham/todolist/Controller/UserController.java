@@ -27,8 +27,7 @@ public class UserController {
                       .build();
   }
 
-  @GetMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/list")
   public ApiResponse<List<UserResponse>> getAllUsers() {
     return ApiResponse.<List<UserResponse>>builder()
                       .status(1)
@@ -37,8 +36,7 @@ public class UserController {
                       .build();
   }
 
-  @GetMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/getUserById/{id}")
   public ApiResponse<UserResponse> getUserById(@PathVariable String id) {
     return ApiResponse.<UserResponse>builder()
                       .status(1)
@@ -47,9 +45,8 @@ public class UserController {
                       .build();
   }
 
-  @GetMapping("/email")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ApiResponse<UserResponse> getUserByEmail(@RequestParam String email) {
+  @GetMapping("/getUserByEmail/{email}")
+  public ApiResponse<UserResponse> getUserByEmail(@PathVariable String email) {
     return ApiResponse.<UserResponse>builder()
                       .status(1)
                       .message("User Found")
@@ -57,8 +54,7 @@ public class UserController {
                       .build();
   }
 
-  @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PutMapping("/updateUser/{id}")
   public ApiResponse<Void> updateUser(@PathVariable String id, @RequestBody UserUpdateRequest request) {
     userService.updateUser(id, request);
     return ApiResponse.<Void>builder()
@@ -67,8 +63,7 @@ public class UserController {
                       .build();
   }
 
-  @DeleteMapping("/{id}")
-  @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+  @DeleteMapping("/deleteUser/{id}")
   public ApiResponse<Void> deleteUser(@PathVariable String id) {
     userService.deleteUser(id);
     return ApiResponse.<Void>builder()
@@ -77,8 +72,7 @@ public class UserController {
                       .build();
   }
 
-  @PostMapping("/{id}/assign-role")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PostMapping("/assign-role/{id}")
   public ApiResponse<UserResponse> assignRoleToUser(@PathVariable String id, @RequestParam String roleName) {
     return ApiResponse.<UserResponse>builder()
                       .status(1)
@@ -87,7 +81,7 @@ public class UserController {
                       .build();
   }
 
-  @PutMapping("/{id}/change-password")
+  @PutMapping("/change-password/{id}")
   public ApiResponse<UserResponse> updateUserPassword(
           @PathVariable String id,
           @RequestParam String oldPassword,
@@ -100,7 +94,6 @@ public class UserController {
   }
 
   @GetMapping("/search")
-  @PreAuthorize("hasRole('ADMIN')")
   public ApiResponse<List<UserResponse>> searchUsers(@RequestParam String keyword) {
     return ApiResponse.<List<UserResponse>>builder()
                       .status(1)
