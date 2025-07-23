@@ -1,17 +1,19 @@
 package com.sontaypham.todolist.Service;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
+import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
 import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
+import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
 import com.sontaypham.todolist.Entities.Permission;
 import com.sontaypham.todolist.Entities.User;
 import com.sontaypham.todolist.Exception.ApiException;
 import com.sontaypham.todolist.Exception.ErrorCode;
+import com.sontaypham.todolist.Repository.InvalidatedTokenRepository;
 import com.sontaypham.todolist.Repository.UserRepository;
 import lombok.NonNull;
 import lombok.experimental.NonFinal;
@@ -23,10 +25,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -38,6 +42,7 @@ import java.util.StringJoiner;
 @Slf4j
 public class AuthenticationService {
     UserRepository userRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
     @NonFinal
     @Value("${app.jwt.secret}")
     protected String signerKey;
@@ -74,6 +79,31 @@ public class AuthenticationService {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public IntrospectResponse introspect(@RequestBody IntrospectRequest request) {
+        var token = request.getToken();
+        boolean isValid;
+        try {
+            verifyToken(token , false);
+            isValid = true;
+        }catch(Exception e) {
+            isValid = false;
+        }
+        return IntrospectResponse.builder().success(isValid).build();
+    }
+
+    public SignedJWT verifyToken(String token , boolean isRefresh) throws ParseException, JOSEException {
+        JWSVerifier verifier = new MACVerifier(signerKey.getBytes()); // get signerKey by verifier
+        SignedJWT signedJWT = SignedJWT.parse(token); // get token by signedJWT parse
+        Date expTime = (isRefresh) ?
+                new Date( signedJWT.getJWTClaimsSet().getIssueTime().toInstant().plus(refreshableDuration ,
+                                                                                      ChronoUnit.SECONDS).toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
+        boolean verified = signedJWT.verify(verifier);
+        if ( !verified || expTime.after(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
+        if ( invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) throw new ApiException(ErrorCode.TOKEN_INVALID);
+        return signedJWT;
     }
 
     private String buildScope(User user) {
