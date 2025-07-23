@@ -22,7 +22,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-  private final String[] PUBLIC_ENDPOINTS = {"/users/create"};
+  private final String[] PUBLIC_ENDPOINTS = {"/users/create" , "/auth/login"};
 
   @Value("${app.jwt.secret}")
   private String jwtSecret;

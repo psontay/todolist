@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +37,9 @@ import org.springframework.util.CollectionUtils;
 @Service
 @Slf4j
 public class AuthenticationService {
+  @Autowired
   UserRepository userRepository;
+  @Autowired
   InvalidatedTokenRepository invalidatedTokenRepository;
 
   @NonFinal
@@ -58,8 +61,9 @@ public class AuthenticationService {
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     boolean userPassword = passwordEncoder.matches(request.getPassword(), user.getPassword());
-    if (userPassword) throw new ApiException(ErrorCode.UNAUTHENTICATED);
+    if (!userPassword) throw new ApiException(ErrorCode.UNAUTHENTICATED);
     String token = generateToken(user);
+    log.info("Generated token: {}", token);
     return AuthenticationResponse.builder().success(true).token(token).build();
   }
 
