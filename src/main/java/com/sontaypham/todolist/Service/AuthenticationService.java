@@ -7,8 +7,11 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
 import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
+import com.sontaypham.todolist.DTO.Request.RefreshTokenRequest;
 import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
 import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
+import com.sontaypham.todolist.DTO.Response.RefreshTokenResponse;
+import com.sontaypham.todolist.Entities.InvalidatedToken;
 import com.sontaypham.todolist.Entities.Permission;
 import com.sontaypham.todolist.Entities.User;
 import com.sontaypham.todolist.Exception.ApiException;
@@ -52,7 +55,7 @@ public class AuthenticationService {
     @NonFinal
     @Value("${app.jwt.refreshableDuration}")
     protected long refreshableDuration;
-    public AuthenticationResponse authenticate (@RequestBody AuthenticationRequest request ) {
+    public AuthenticationResponse authenticate (AuthenticationRequest request ) {
         var user = userRepository.findByName(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean userPassword = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -81,7 +84,7 @@ public class AuthenticationService {
         }
     }
 
-    public IntrospectResponse introspect(@RequestBody IntrospectRequest request) {
+    public IntrospectResponse introspect( IntrospectRequest request) {
         var token = request.getToken();
         boolean isValid;
         try {
@@ -104,6 +107,19 @@ public class AuthenticationService {
         if ( !verified || expTime.after(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
         if ( invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) throw new ApiException(ErrorCode.TOKEN_INVALID);
         return signedJWT;
+    }
+
+    public RefreshTokenResponse refreshToken( RefreshTokenRequest request) throws ParseException,
+                                                                                         JOSEException {
+        SignedJWT signedJWT = verifyToken(request.getToken(), true);
+        String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder().expTime(expTime).id(jwtId).build();
+        invalidatedTokenRepository.save(invalidatedToken);
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+        User user = userRepository.findByName(username).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        String token = generateToken(user);
+        return RefreshTokenResponse.builder().success(true).token(token).build();
     }
 
     private String buildScope(User user) {
