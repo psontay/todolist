@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationController {
-    @Autowired
-    private AuthenticationService authenticationService;
-    @PostMapping("/login")
-    public ApiResponse<AuthenticationResponse> login( @RequestBody AuthenticationRequest request) {
-        return ApiResponse.<AuthenticationResponse>builder().status(1).message("Login Method").data(authenticationService.authenticate(request)).build();
-    }
+  @Autowired private AuthenticationService authenticationService;
+
+  @PostMapping("/login")
+  public ApiResponse<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
+    return ApiResponse.<AuthenticationResponse>builder()
+        .status(1)
+        .message("Login Method")
+        .data(authenticationService.authenticate(request))
+        .build();
+  }
 }

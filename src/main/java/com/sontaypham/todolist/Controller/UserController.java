@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-  @Autowired
-  UserService userService;
+  @Autowired UserService userService;
 
   @PostMapping("/create")
   public ApiResponse<UserResponse> create(@RequestBody UserCreationRequest request) {

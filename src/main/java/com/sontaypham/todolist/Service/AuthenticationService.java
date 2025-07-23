@@ -37,10 +37,8 @@ import org.springframework.util.CollectionUtils;
 @Service
 @Slf4j
 public class AuthenticationService {
-  @Autowired
-  UserRepository userRepository;
-  @Autowired
-  InvalidatedTokenRepository invalidatedTokenRepository;
+  @Autowired UserRepository userRepository;
+  @Autowired InvalidatedTokenRepository invalidatedTokenRepository;
 
   @NonFinal
   @Value("${app.jwt.secret}")
@@ -79,6 +77,7 @@ public class AuthenticationService {
                     Instant.now().plus(refreshableDuration, ChronoUnit.SECONDS).toEpochMilli()))
             .claim("scope", buildScope(user))
             .claim("permission", buildPermissions(user))
+            .claim("userId", user.getId())
             .build();
     Payload payload = new Payload(jwtClaimsSet.toJSONObject());
     JWSObject jwsObject = new JWSObject(jwsHeader, payload);

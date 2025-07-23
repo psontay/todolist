@@ -27,4 +27,9 @@ public class Task {
   @ManyToOne
   @JoinColumn(name = "user_id")
   User user;
+
+  @PrePersist
+  public void prePersist() {
+    this.createdAt = LocalDateTime.now();
+  }
 }
