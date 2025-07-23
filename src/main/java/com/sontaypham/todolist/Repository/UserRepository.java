@@ -1,9 +1,10 @@
 package com.sontaypham.todolist.Repository;
 
-import com.sontaypham.todolist.DTO.Request.UserUpdateRequest;
 import com.sontaypham.todolist.Entities.User;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.lang.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   void deleteByName(String name);
 
-  Optional<User> findById(String id);
+  Optional<User> findById( @NonNull String id);
 
   Optional<User> findByEmail(String email);
 
