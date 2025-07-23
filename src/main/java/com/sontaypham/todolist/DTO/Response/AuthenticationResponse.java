@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthenticationResponse {
-    String token;
-    boolean success;
+  String token;
+  boolean success;
 }

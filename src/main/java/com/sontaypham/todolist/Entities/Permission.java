@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Permission {
-    @Id
-    String name;
-    String description;
+  @Id String name;
+  String description;
 }

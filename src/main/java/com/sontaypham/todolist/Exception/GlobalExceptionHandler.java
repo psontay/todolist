@@ -5,6 +5,4 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
-
-}
+public class GlobalExceptionHandler {}

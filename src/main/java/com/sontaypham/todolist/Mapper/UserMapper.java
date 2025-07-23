@@ -6,11 +6,12 @@ import com.sontaypham.todolist.Entities.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper( componentModel = "spring")
+@Mapper(componentModel = "spring")
 public interface UserMapper {
-    User toUser(UserCreationRequest request);
-    @Mapping( target = "roles" , source = "roles")
-    @Mapping( target = "tasks" , source = "tasks")
-    @Mapping( target = "id" , source = "id")
-    UserResponse toUserResponse(User user);
+  User toUser(UserCreationRequest request);
+
+  @Mapping(target = "roles", source = "roles")
+  @Mapping(target = "tasks", source = "tasks")
+  @Mapping(target = "id", source = "id")
+  UserResponse toUserResponse(User user);
 }

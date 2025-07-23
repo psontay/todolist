@@ -11,10 +11,12 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
-    @NotBlank( message = "required name!")
-    String name;
-    @NotBlank( message = "required message!")
-    String password;
-    @Email( message = "not an email type!")
-    String email;
+  @NotBlank(message = "required name!")
+  String name;
+
+  @NotBlank(message = "required message!")
+  String password;
+
+  @Email(message = "not an email type!")
+  String email;
 }

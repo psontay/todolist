@@ -1,10 +1,8 @@
 package com.sontaypham.todolist.Entities;
 
-import java.util.Date;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-
+import java.util.Date;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidatedToken {
-    @Id
-    String id;
-    Date expTime;
+  @Id String id;
+  Date expTime;
 }

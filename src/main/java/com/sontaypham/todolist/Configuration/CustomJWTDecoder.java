@@ -1,6 +1,8 @@
 package com.sontaypham.todolist.Configuration;
 
 import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
+import com.sontaypham.todolist.Exception.ApiException;
+import com.sontaypham.todolist.Exception.ErrorCode;
 import com.sontaypham.todolist.Service.AuthenticationService;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,12 +18,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CustomJwtDecoder implements JwtDecoder {
+public class CustomJWTDecoder implements JwtDecoder {
   @Value("${app.jwt.secret}")
-  private String signerKey;
+  String signerKey;
 
   @Autowired private AuthenticationService authenticationService;
-
   private NimbusJwtDecoder nimbusJwtDecoder = null;
 
   @Override
@@ -29,16 +30,16 @@ public class CustomJwtDecoder implements JwtDecoder {
     try {
       var verify =
           authenticationService.introspect(IntrospectRequest.builder().token(token).build());
-      if (!verify.isSuccess()) throw new JwtException("invalid token");
+      if (!verify.isSuccess()) throw new ApiException(ErrorCode.TOKEN_INVALID);
+      if (Objects.isNull(nimbusJwtDecoder)) {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
+        nimbusJwtDecoder =
+            NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+      }
+      log.info(nimbusJwtDecoder.toString());
+      return nimbusJwtDecoder.decode(token);
     } catch (Exception e) {
       throw new JwtException(e.getMessage());
     }
-    if (Objects.isNull(nimbusJwtDecoder)) {
-      SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-      nimbusJwtDecoder =
-          NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
-    }
-    log.info(nimbusJwtDecoder.toString());
-    return nimbusJwtDecoder.decode(token);
   }
 }
