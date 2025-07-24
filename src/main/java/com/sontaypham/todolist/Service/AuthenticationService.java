@@ -13,6 +13,7 @@ import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
 import com.sontaypham.todolist.DTO.Response.RefreshTokenResponse;
 import com.sontaypham.todolist.Entities.InvalidatedToken;
 import com.sontaypham.todolist.Entities.Permission;
+import com.sontaypham.todolist.Entities.Role;
 import com.sontaypham.todolist.Entities.User;
 import com.sontaypham.todolist.Exception.ApiException;
 import com.sontaypham.todolist.Exception.ErrorCode;
@@ -21,10 +22,8 @@ import com.sontaypham.todolist.Repository.UserRepository;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +77,7 @@ public class AuthenticationService {
             .claim("scope", buildScope(user))
             .claim("permission", buildPermissions(user))
             .claim("userId", user.getId())
+            .claim("jit" , UUID.randomUUID().toString())
             .build();
     Payload payload = new Payload(jwtClaimsSet.toJSONObject());
     JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -140,13 +140,15 @@ public class AuthenticationService {
     return RefreshTokenResponse.builder().success(true).token(token).build();
   }
 
-  private String buildScope(User user) {
-    StringJoiner stringJoiner = new StringJoiner(" ");
-    if (!CollectionUtils.isEmpty(user.getRoles())) {
-      user.getRoles().forEach(role -> stringJoiner.add(role.getName()));
+  private List<String> buildScope(User user) {
+    if (CollectionUtils.isEmpty(user.getRoles())) {
+      return Collections.emptyList();
     }
-    return stringJoiner.toString();
+    return user.getRoles().stream()
+               .map(Role::getName)
+               .toList();
   }
+
 
   private List<String> buildPermissions(User user) {
     if (CollectionUtils.isEmpty(user.getRoles())) {
@@ -158,4 +160,11 @@ public class AuthenticationService {
         .distinct()
         .toList();
   }
+  public void assertTokenNotRevoked(SignedJWT jwt) throws ParseException {
+    String jwtId = jwt.getJWTClaimsSet().getJWTID();
+    if (jwtId != null && invalidatedTokenRepository.existsById(jwtId)) {
+      throw new ApiException(ErrorCode.TOKEN_INVALID);
+    }
+  }
+
 }

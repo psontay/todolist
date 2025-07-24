@@ -8,10 +8,13 @@ import lombok.experimental.FieldDefaults;
 
 @Entity
 @Builder
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@ToString(exclude = "user")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Task {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)

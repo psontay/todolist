@@ -2,16 +2,20 @@ package com.sontaypham.todolist.Entities;
 
 import jakarta.persistence.*;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "permissions")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Role {
-  @Id String name;
+  @Id
+  @EqualsAndHashCode.Include
+  String name;
   String description;
 
   @ManyToMany( fetch = FetchType.EAGER)

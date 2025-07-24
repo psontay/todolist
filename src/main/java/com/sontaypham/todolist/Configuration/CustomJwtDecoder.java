@@ -5,7 +5,7 @@ import com.sontaypham.todolist.Service.AuthenticationService;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,25 +20,20 @@ public class CustomJwtDecoder implements JwtDecoder {
   @Value("${app.jwt.secret}")
   private String signerKey;
 
-  @Autowired private AuthenticationService authenticationService;
-
+  private AuthenticationService authenticationService;
   private NimbusJwtDecoder nimbusJwtDecoder = null;
 
+  public CustomJwtDecoder(ObjectProvider<AuthenticationService> provider) {
+    this.authenticationService = provider.getIfAvailable();
+  }
   @Override
   public Jwt decode(String token) throws JwtException {
-    try {
-      var verify =
-          authenticationService.introspect(IntrospectRequest.builder().token(token).build());
-      if (!verify.isSuccess()) throw new JwtException("invalid token");
-    } catch (Exception e) {
-      throw new JwtException(e.getMessage());
-    }
     if (Objects.isNull(nimbusJwtDecoder)) {
-      SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-      nimbusJwtDecoder =
-          NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+      SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HmacSHA512");
+      nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
+                                         .macAlgorithm(MacAlgorithm.HS512)
+                                         .build();
     }
-    log.info(nimbusJwtDecoder.toString());
     return nimbusJwtDecoder.decode(token);
   }
 }

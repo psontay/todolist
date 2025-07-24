@@ -16,6 +16,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -28,7 +29,7 @@ public class SecurityConfig {
   private String jwtSecret;
 
   @Autowired private CustomJwtDecoder customJwtDecoder;
-
+  @Autowired private JwtRevocationFilter jwtRevocationFilter;
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
@@ -38,16 +39,14 @@ public class SecurityConfig {
                 .permitAll()
                 .anyRequest()
                 .authenticated());
-    http.oauth2ResourceServer(
-        conf ->
-            conf.jwt(
-                    jwtConfigurer ->
-                        jwtConfigurer
-                            .decoder(customJwtDecoder)
-                            .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                .authenticationEntryPoint(new JWTAuthenticationEntryPoint())
-                .accessDeniedHandler(new CustomAccessDeniedHandler()));
-    http.csrf(AbstractHttpConfigurer::disable);
+    http.oauth2ResourceServer(oauth2 -> oauth2
+                                      .jwt(jwt -> jwt
+                                              .decoder(customJwtDecoder)
+                                              .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                                          )
+                             )
+        .addFilterBefore(jwtRevocationFilter, BearerTokenAuthenticationFilter.class)
+        .csrf(AbstractHttpConfigurer::disable);
     return http.build();
   }
 

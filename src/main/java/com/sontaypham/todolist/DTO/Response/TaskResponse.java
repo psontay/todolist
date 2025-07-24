@@ -1,20 +1,20 @@
 package com.sontaypham.todolist.DTO.Response;
 
-import com.sontaypham.todolist.Entities.Role;
 import com.sontaypham.todolist.Entities.Task;
-import java.util.Set;
+import com.sontaypham.todolist.Enums.TaskStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResponse {
-  String id;
-  String name;
-  String email;
-  Set<String> roles;
-  Set<TaskResponse> tasks;
+public class TaskResponse {
+    String id;
+    String title;
+    String status;
+    String createdAt;
 }

@@ -1,5 +1,6 @@
 package com.sontaypham.todolist.Service;
 
+import com.sontaypham.todolist.DTO.Request.TaskUpdateRequest;
 import com.sontaypham.todolist.DTO.Request.UserCreationRequest;
 import com.sontaypham.todolist.DTO.Request.UserUpdateRequest;
 import com.sontaypham.todolist.DTO.Response.UserResponse;
@@ -87,40 +88,43 @@ public class UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
-    User user =
-        userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    User user = userRepository.findById(id)
+                              .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+
     user.setName(request.getName());
     user.setEmail(request.getEmail());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
-    Set<Task> updatedTasks =
-        request.getTasks().stream()
-            .map(
-                task -> {
-                  if (task.getId() != null) { // if already exist this task
-                    Task existTask =
-                        taskRepository
-                            .findById(task.getId())
-                            .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
-                    existTask.setTitle(task.getTitle());
-                    existTask.setStatus(task.getStatus());
-                    return existTask;
-                  }
-                  // if !exist , make new and adding to user
-                  return Task.builder().title(task.getTitle()).status(task.getStatus()).build();
-                })
-            .collect(Collectors.toSet());
-    Set<Role> roles =
-        request.getRoles().stream()
-            .map(
-                roleName ->
-                    roleRepository
-                        .findByName(roleName)
-                        .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND)))
-            .collect(Collectors.toSet());
-    user.setTasks(updatedTasks);
+
+    Set<Task> existingTasks = user.getTasks();
+    existingTasks.clear();
+
+    for (TaskUpdateRequest t : request.getTasks()) {
+      Task task;
+
+      if (t.getId() != null) {
+        task = taskRepository.findById(t.getId())
+                             .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+        task.setTitle(t.getTitle());
+        task.setStatus(t.getStatus());
+      } else {
+        task = Task.builder()
+                   .title(t.getTitle())
+                   .status(t.getStatus())
+                   .build();
+      }
+
+      task.setUser(user);
+      existingTasks.add(task);
+    }
+
+    Set<Role> roles = request.getRoles().stream()
+                             .map(roleName -> roleRepository.findByName(roleName)
+                                                            .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND)))
+                             .collect(Collectors.toSet());
     user.setRoles(roles);
     userRepository.save(user);
   }
+
 
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
@@ -140,8 +144,11 @@ public class UserService {
             .findByName(roleName)
             .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
 
-    user.getRoles().add(role);
+    Set<Role> currentRoles = new HashSet<>(user.getRoles());
+    currentRoles.add(role);
+    user.setRoles(currentRoles);
     userRepository.save(user);
+    System.out.println("Roles after assign: " + user.getRoles());
     return userMapper.toUserResponse(user);
   }
 

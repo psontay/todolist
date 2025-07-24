@@ -6,12 +6,15 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Users")
+@ToString(exclude = {"roles", "tasks"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
