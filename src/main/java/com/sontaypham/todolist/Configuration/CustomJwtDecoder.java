@@ -1,6 +1,5 @@
 package com.sontaypham.todolist.Configuration;
 
-import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
 import com.sontaypham.todolist.Service.AuthenticationService;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
@@ -26,13 +25,13 @@ public class CustomJwtDecoder implements JwtDecoder {
   public CustomJwtDecoder(ObjectProvider<AuthenticationService> provider) {
     this.authenticationService = provider.getIfAvailable();
   }
+
   @Override
   public Jwt decode(String token) throws JwtException {
     if (Objects.isNull(nimbusJwtDecoder)) {
       SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HmacSHA512");
-      nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                                         .macAlgorithm(MacAlgorithm.HS512)
-                                         .build();
+      nimbusJwtDecoder =
+          NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
     }
     return nimbusJwtDecoder.decode(token);
   }

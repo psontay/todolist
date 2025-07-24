@@ -1,7 +1,5 @@
 package com.sontaypham.todolist.DTO.Response;
 
-import com.sontaypham.todolist.Entities.Role;
-import com.sontaypham.todolist.Entities.Task;
 import java.util.Set;
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -88,8 +88,8 @@ public class UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
-    User user = userRepository.findById(id)
-                              .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    User user =
+        userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
     user.setName(request.getName());
     user.setEmail(request.getEmail());
@@ -102,29 +102,31 @@ public class UserService {
       Task task;
 
       if (t.getId() != null) {
-        task = taskRepository.findById(t.getId())
-                             .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+        task =
+            taskRepository
+                .findById(t.getId())
+                .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
         task.setTitle(t.getTitle());
         task.setStatus(t.getStatus());
       } else {
-        task = Task.builder()
-                   .title(t.getTitle())
-                   .status(t.getStatus())
-                   .build();
+        task = Task.builder().title(t.getTitle()).status(t.getStatus()).build();
       }
 
       task.setUser(user);
       existingTasks.add(task);
     }
 
-    Set<Role> roles = request.getRoles().stream()
-                             .map(roleName -> roleRepository.findByName(roleName)
-                                                            .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND)))
-                             .collect(Collectors.toSet());
+    Set<Role> roles =
+        request.getRoles().stream()
+            .map(
+                roleName ->
+                    roleRepository
+                        .findByName(roleName)
+                        .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND)))
+            .collect(Collectors.toSet());
     user.setRoles(roles);
     userRepository.save(user);
   }
-
 
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")

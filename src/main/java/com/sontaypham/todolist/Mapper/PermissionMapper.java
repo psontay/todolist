@@ -8,7 +8,9 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {
-    Permission toPermission( PermissionRequest permissionRequest);
-    PermissionResponse toPermissionResponse(Permission permission);
-    void updatePermission( PermissionRequest permissionRequest, @MappingTarget Permission permission);
+  Permission toPermission(PermissionRequest permissionRequest);
+
+  PermissionResponse toPermissionResponse(Permission permission);
+
+  void updatePermission(PermissionRequest permissionRequest, @MappingTarget Permission permission);
 }

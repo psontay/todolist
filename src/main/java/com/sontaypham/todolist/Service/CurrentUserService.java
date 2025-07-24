@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CurrentUserService {
-    private final UserRepository userRepository;
-    public User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByName(username).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    }
+  private final UserRepository userRepository;
+
+  public User getCurrentUser() {
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    return userRepository
+        .findByName(username)
+        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+  }
 }

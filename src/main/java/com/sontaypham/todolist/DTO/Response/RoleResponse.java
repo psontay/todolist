@@ -1,15 +1,16 @@
 package com.sontaypham.todolist.DTO.Response;
 
+import java.util.Set;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TaskStatisticsResponse {
-  long total;
-  long pending;
-  long completed;
+public class RoleResponse {
+  String name;
+  String description;
+  Set<PermissionResponse> permissions;
 }

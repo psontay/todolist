@@ -12,7 +12,7 @@ public class ApiException extends RuntimeException {
     this.errorCode = errorCode;
   }
 
-  public ApiException(String message, ErrorCode errorCode) {
+  public ApiException(ErrorCode errorCode, String message) {
     super(message);
     this.errorCode = errorCode;
   }

@@ -2,7 +2,6 @@ package com.sontaypham.todolist.Entities;
 
 import jakarta.persistence.*;
 import java.util.Set;
-
 import lombok.*;
 
 @Entity
@@ -13,12 +12,10 @@ import lombok.*;
 @ToString(exclude = "permissions")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Role {
-  @Id
-  @EqualsAndHashCode.Include
-  String name;
+  @Id @EqualsAndHashCode.Include String name;
   String description;
 
-  @ManyToMany( fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "role_permission",
       joinColumns = @JoinColumn(name = "role_name"),

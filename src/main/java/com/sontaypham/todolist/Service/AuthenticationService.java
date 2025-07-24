@@ -24,7 +24,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +77,7 @@ public class AuthenticationService {
             .claim("scope", buildScope(user))
             .claim("permission", buildPermissions(user))
             .claim("userId", user.getId())
-            .claim("jit" , UUID.randomUUID().toString())
+            .claim("jit", UUID.randomUUID().toString())
             .build();
     Payload payload = new Payload(jwtClaimsSet.toJSONObject());
     JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -123,18 +122,20 @@ public class AuthenticationService {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     return signedJWT;
   }
+
   public void logout(LogoutRequest request) throws ParseException, JOSEException {
     try {
       var signToken = verifyToken(request.getToken(), true);
       String jti = signToken.getJWTClaimsSet().getJWTID();
       Date expTime = signToken.getJWTClaimsSet().getExpirationTime();
       InvalidatedToken invalidatedToken =
-              InvalidatedToken.builder().id(jti).expTime(expTime).build();
+          InvalidatedToken.builder().id(jti).expTime(expTime).build();
       invalidatedTokenRepository.save(invalidatedToken);
     } catch (ApiException e) {
       log.error(e.getMessage());
     }
   }
+
   public RefreshTokenResponse refreshToken(RefreshTokenRequest request)
       throws ParseException, JOSEException {
     SignedJWT signedJWT = verifyToken(request.getToken(), true);
@@ -156,11 +157,8 @@ public class AuthenticationService {
     if (CollectionUtils.isEmpty(user.getRoles())) {
       return Collections.emptyList();
     }
-    return user.getRoles().stream()
-               .map(Role::getName)
-               .toList();
+    return user.getRoles().stream().map(Role::getName).toList();
   }
-
 
   private List<String> buildPermissions(User user) {
     if (CollectionUtils.isEmpty(user.getRoles())) {
@@ -172,11 +170,11 @@ public class AuthenticationService {
         .distinct()
         .toList();
   }
+
   public void assertTokenNotRevoked(SignedJWT jwt) throws ParseException {
     String jwtId = jwt.getJWTClaimsSet().getJWTID();
     if (jwtId != null && invalidatedTokenRepository.existsById(jwtId)) {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     }
   }
-
 }
