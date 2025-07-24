@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
 import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
+import com.sontaypham.todolist.DTO.Request.LogoutRequest;
 import com.sontaypham.todolist.DTO.Request.RefreshTokenRequest;
 import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
 import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
@@ -122,7 +123,18 @@ public class AuthenticationService {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     return signedJWT;
   }
-
+  public void logout(LogoutRequest request) throws ParseException, JOSEException {
+    try {
+      var signToken = verifyToken(request.getToken(), true);
+      String jti = signToken.getJWTClaimsSet().getJWTID();
+      Date expTime = signToken.getJWTClaimsSet().getExpirationTime();
+      InvalidatedToken invalidatedToken =
+              InvalidatedToken.builder().id(jti).expTime(expTime).build();
+      invalidatedTokenRepository.save(invalidatedToken);
+    } catch (ApiException e) {
+      log.error(e.getMessage());
+    }
+  }
   public RefreshTokenResponse refreshToken(RefreshTokenRequest request)
       throws ParseException, JOSEException {
     SignedJWT signedJWT = verifyToken(request.getToken(), true);
