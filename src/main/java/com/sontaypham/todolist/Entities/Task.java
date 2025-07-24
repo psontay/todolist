@@ -18,6 +18,7 @@ import lombok.experimental.FieldDefaults;
 public class Task {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @EqualsAndHashCode.Include
   String id;
 
   String title;

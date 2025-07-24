@@ -72,9 +72,9 @@ public class TaskController {
                                             .build());
     }
 
-    @GetMapping("/getTasksByStatus")
+    @GetMapping("/getTasksByStatus/{status}")
     public ResponseEntity<ApiResponse<List<TaskResponse>>> getTasksByStatus(
-            @RequestParam TaskStatus status) {
+            @PathVariable TaskStatus status) {
         List<TaskResponse> tasks = taskService.getTasksByStatus(status);
         return ResponseEntity.ok(ApiResponse.<List<TaskResponse>>builder()
                                             .status(1)
@@ -83,9 +83,9 @@ public class TaskController {
                                             .build());
     }
 
-    @GetMapping("/searchTasks")
+    @GetMapping("/searchTasks/{keyword}")
     public ResponseEntity<ApiResponse<List<TaskResponse>>> searchTasks(
-            @RequestParam String keyword) {
+            @PathVariable String keyword) {
         List<TaskResponse> tasks = taskService.searchTasks(keyword);
         return ResponseEntity.ok(ApiResponse.<List<TaskResponse>>builder()
                                             .status(1)

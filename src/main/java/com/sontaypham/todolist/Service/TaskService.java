@@ -17,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -65,13 +66,21 @@ public class TaskService {
         taskRepository.save(existingTask);
         return taskMapper.toTaskResponse(existingTask);
     }
+    @Transactional
     public void deleteTask(String id) {
         User user = currentUserService.getCurrentUser();
-        Set<Task> currentTasks = user.getTasks();
-        Task task = currentTasks.stream().filter( obj -> obj.getId().equals(id)).findFirst().orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+        Set<Task> tasks = user.getTasks();
+
+        Task task = user.getTasks().stream()
+                         .filter(obj -> obj.getId().equals(id))
+                         .findFirst()
+                         .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+
+        tasks.remove(task);
         log.info("Deleting task with id {}", id);
         taskRepository.delete(task);
     }
+
     public List<TaskResponse> getTasksByStatus(TaskStatus status) {
         User user = currentUserService.getCurrentUser();
         Set<Task> currentTasks = user.getTasks();
