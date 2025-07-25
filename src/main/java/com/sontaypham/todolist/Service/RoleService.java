@@ -10,7 +10,6 @@ import com.sontaypham.todolist.Repository.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -50,7 +49,7 @@ public class RoleService {
   public List<RoleResponse> getAll() {
     return roleRepository.findAll().stream()
         .map(roleMapper::toRoleResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -89,7 +88,7 @@ public class RoleService {
     log.info("<Find Role By Keyword Method> {}", keyWord);
     return roleRepository.findAllByNameContainingIgnoreCase(keyWord).stream()
         .map(roleMapper::toRoleResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -115,11 +114,14 @@ public class RoleService {
     List<Permission> permissions = permissionRepository.findAllByNameIn(names);
     if (permissions.size() != permissionNames.size()) {
       List<String> foundNames =
-          permissions.stream().map(Permission::getName).collect(Collectors.toList());
+          permissions.stream().map(Permission::getName).toList();
       List<String> missing = permissionNames.stream().filter(p -> !foundNames.contains(p)).toList();
       throw new ApiException(ErrorCode.PERMISSION_NOT_FOUND, "Missing Permission : " + missing);
     }
+    if (role.getPermissions() == null) role.setPermissions(new HashSet<>());
+    System.out.println("Before : " + role.getPermissions().size());
     role.getPermissions().addAll(permissions);
+    System.out.println("After : " + role.getPermissions().size());
     Role save = roleRepository.save(role);
     return roleMapper.toRoleResponse(save);
   }

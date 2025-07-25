@@ -93,7 +93,7 @@ public class PermissionController {
         .build();
   }
 
-  @GetMapping("keyword/{keyword}")
+  @GetMapping("/keyword/{keyword}")
   ApiResponse<List<PermissionResponse>> findByKeyword(@PathVariable String keyword) {
     return ApiResponse.<List<PermissionResponse>>builder()
         .status(1)
