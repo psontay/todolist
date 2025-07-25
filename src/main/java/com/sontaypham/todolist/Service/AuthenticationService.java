@@ -77,7 +77,7 @@ public class AuthenticationService {
             .claim("scope", buildScope(user))
             .claim("permission", buildPermissions(user))
             .claim("userId", user.getId())
-            .claim("jit", UUID.randomUUID().toString())
+            .claim("jti", UUID.randomUUID().toString())
             .build();
     Payload payload = new Payload(jwtClaimsSet.toJSONObject());
     JWSObject jwsObject = new JWSObject(jwsHeader, payload);
@@ -97,6 +97,7 @@ public class AuthenticationService {
       verifyToken(token, false);
       isValid = true;
     } catch (Exception e) {
+      log.error(e.getMessage());
       isValid = false;
     }
     return IntrospectResponse.builder().success(isValid).build();
@@ -117,8 +118,9 @@ public class AuthenticationService {
                     .toEpochMilli())
             : signedJWT.getJWTClaimsSet().getExpirationTime();
     boolean verified = signedJWT.verify(verifier);
-    if (!verified || expTime.after(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
-    if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+    if (!verified || expTime.before(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
+    String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
+    if ( jwtId != null && invalidatedTokenRepository.existsById(jwtId))
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     return signedJWT;
   }

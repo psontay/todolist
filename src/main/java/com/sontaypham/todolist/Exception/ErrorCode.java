@@ -15,11 +15,13 @@ public enum ErrorCode {
   USER_NOT_FOUND(1001, "User not found", HttpStatus.NOT_FOUND),
   USERNAME_ALREADY_EXISTS(1002, "Username already exists", HttpStatus.CONFLICT),
   EMAIL_ALREADY_EXISTS(1003, "Email already exists", HttpStatus.CONFLICT),
-  INVALID_PASSWORD(1004, "Invalid password", HttpStatus.UNAUTHORIZED),
-  INVALID_CREDENTIALS(1005, "Invalid username or password", HttpStatus.UNAUTHORIZED),
+  INVALID_PASSWORD(1004, "Password must be at least {min} characters", HttpStatus.BAD_REQUEST),
+  INVALID_CREDENTIALS(1005, "Invalid username or password", HttpStatus.BAD_REQUEST),
   UNAUTHORIZED(1006, "Unauthorized", HttpStatus.UNAUTHORIZED),
   FORBIDDEN(1007, "Forbidden", HttpStatus.FORBIDDEN),
   UNAUTHENTICATED(1008, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+  INVALID_USERNAME(1009, "Invalid username", HttpStatus.BAD_REQUEST),
+  INVALID_EMAIL(10010, "Invalid email type , must start with {domain} & end with @gmail.com", HttpStatus.BAD_REQUEST),
 
   // TASK
   TASK_NOT_FOUND(2001, "Task not found", HttpStatus.NOT_FOUND),

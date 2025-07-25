@@ -2,6 +2,8 @@ package com.sontaypham.todolist.Configuration;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +24,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-  private final String[] PUBLIC_ENDPOINTS = {"/users/create", "/auth/login"};
-
+  private final String[] PUBLIC_ENDPOINTS = {"/users/create", "/auth/login" , "/auth/logout" , "/auth/introspect"};
   @Value("${app.jwt.secret}")
   private String jwtSecret;
 

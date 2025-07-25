@@ -42,7 +42,6 @@ public class UserService {
   UserMapper userMapper;
   RoleRepository roleRepository;
   TaskRepository taskRepository;
-
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -66,7 +65,7 @@ public class UserService {
   public List<UserResponse> getAllUsers() {
     return userRepository.findAll().stream()
         .map(userMapper::toUserResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -150,7 +149,6 @@ public class UserService {
     currentRoles.add(role);
     user.setRoles(currentRoles);
     userRepository.save(user);
-    System.out.println("Roles after assign: " + user.getRoles());
     return userMapper.toUserResponse(user);
   }
 
@@ -161,7 +159,7 @@ public class UserService {
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     if (passwordEncoder.matches(oldPassword, user.getPassword()))
       user.setPassword(passwordEncoder.encode(newPassword));
-    log.warn("Chang password success!");
+    log.warn("Change password success!");
     return userMapper.toUserResponse(user);
   }
 
@@ -169,7 +167,7 @@ public class UserService {
   public List<UserResponse> searchUsers(String keyword) {
     return userRepository.findByKeyword(keyword).stream()
         .map(userMapper::toUserResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   public UserResponse getUserProfile() {

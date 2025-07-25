@@ -11,6 +11,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString(exclude = "permissions")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Role {
