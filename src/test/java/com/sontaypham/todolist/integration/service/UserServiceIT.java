@@ -145,8 +145,10 @@ public class UserServiceIT {
     when(userMapper.toUser(userCreationRequest)).thenReturn(user);
     when(passwordEncoder.encode("irrelevant")).thenReturn("encodedPassword");
     when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.of(userRole));
-    when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("duplicate key"));
-    ApiException exception = assertThrows(ApiException.class, () -> userService.create(userCreationRequest));
+    when(userRepository.save(any(User.class)))
+        .thenThrow(new DataIntegrityViolationException("duplicate key"));
+    ApiException exception =
+        assertThrows(ApiException.class, () -> userService.create(userCreationRequest));
     assertEquals("Username already exists", exception.getMessage());
   }
 
