@@ -8,7 +8,6 @@ import com.sontaypham.todolist.Exception.ErrorCode;
 import com.sontaypham.todolist.Mapper.PermissionMapper;
 import com.sontaypham.todolist.Repository.PermissionRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -8,7 +8,6 @@ import com.sontaypham.todolist.Exception.ErrorCode;
 import com.sontaypham.todolist.Mapper.PermissionMapper;
 import com.sontaypham.todolist.Repository.PermissionRepository;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableMethodSecurity
 @Service
 @RequiredArgsConstructor
-<span class="fc" id="L24">@Slf4j</span>
+<span class="fc" id="L23">@Slf4j</span>
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PermissionService {
   PermissionRepository permissionRepository;
@@ -29,74 +28,74 @@ public class PermissionService {
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public PermissionResponse createPermission(PermissionRequest request) {
-<span class="nc" id="L32">    log.info(&quot;Create Permission : {}&quot;, request.getName());</span>
-<span class="nc bnc" id="L33" title="All 2 branches missed.">    if (permissionRepository.existsByName(request.getName()))</span>
-<span class="nc" id="L34">      throw new ApiException(ErrorCode.PERMISSION_ALREADY_EXISTS);</span>
-<span class="nc" id="L35">    Permission permission = permissionMapper.toPermission(request);</span>
-<span class="nc" id="L36">    permission = permissionRepository.save(permission);</span>
-<span class="nc" id="L37">    return permissionMapper.toPermissionResponse(permission);</span>
+<span class="fc" id="L31">    log.info(&quot;Create Permission : {}&quot;, request.getName());</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (permissionRepository.existsByName(request.getName()))</span>
+<span class="fc" id="L33">      throw new ApiException(ErrorCode.PERMISSION_ALREADY_EXISTS);</span>
+<span class="fc" id="L34">    Permission permission = permissionMapper.toPermission(request);</span>
+<span class="fc" id="L35">    permission = permissionRepository.save(permission);</span>
+<span class="fc" id="L36">    return permissionMapper.toPermissionResponse(permission);</span>
   }
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public List&lt;PermissionResponse&gt; getPermissions() {
-<span class="nc" id="L42">    log.info(&quot;method getPermissions&quot;);</span>
-<span class="nc" id="L43">    return permissionRepository.findAll().stream()</span>
-<span class="nc" id="L44">        .map(permissionMapper::toPermissionResponse)</span>
-<span class="nc" id="L45">        .toList();</span>
+<span class="fc" id="L41">    log.info(&quot;method getPermissions&quot;);</span>
+<span class="fc" id="L42">    return permissionRepository.findAll().stream()</span>
+<span class="fc" id="L43">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="fc" id="L44">        .toList();</span>
   }
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public PermissionResponse findByName(String permissionName) {
-<span class="nc" id="L50">    log.info(&quot;method findPermissionByName : {}&quot;, permissionName);</span>
-<span class="nc" id="L51">    return permissionRepository</span>
-<span class="nc" id="L52">        .findByName(permissionName)</span>
-<span class="nc" id="L53">        .map(permissionMapper::toPermissionResponse)</span>
-<span class="nc" id="L54">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+<span class="fc" id="L49">    log.info(&quot;method findPermissionByName : {}&quot;, permissionName);</span>
+<span class="fc" id="L50">    return permissionRepository</span>
+<span class="fc" id="L51">        .findByName(permissionName)</span>
+<span class="fc" id="L52">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="fc" id="L53">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
   }
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public boolean existsByName(String permissionName) {
-<span class="nc" id="L59">    log.info(&quot;method existsPermissionByPermissionName : {}&quot;, permissionName);</span>
-<span class="nc" id="L60">    return permissionRepository.existsByName(permissionName);</span>
+<span class="nc" id="L58">    log.info(&quot;method existsPermissionByPermissionName : {}&quot;, permissionName);</span>
+<span class="nc" id="L59">    return permissionRepository.existsByName(permissionName);</span>
   }
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public PermissionResponse findByDescription(String description) {
-<span class="nc" id="L65">    log.info(&quot;method findByDescription : {}&quot;, description);</span>
-<span class="nc" id="L66">    return permissionRepository</span>
-<span class="nc" id="L67">        .findByDescription(description)</span>
-<span class="nc" id="L68">        .map(permissionMapper::toPermissionResponse)</span>
-<span class="nc" id="L69">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+<span class="nc" id="L64">    log.info(&quot;method findByDescription : {}&quot;, description);</span>
+<span class="nc" id="L65">    return permissionRepository</span>
+<span class="nc" id="L66">        .findByDescription(description)</span>
+<span class="nc" id="L67">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="nc" id="L68">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
   }
 
   @Transactional
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public PermissionResponse updatePermissionByName(
       String permissionName, PermissionRequest request) {
-<span class="nc" id="L76">    log.info(&quot;method updatePermissionByName : {}&quot;, permissionName);</span>
-<span class="nc" id="L77">    Permission permission =</span>
+<span class="fc" id="L75">    log.info(&quot;method updatePermissionByName : {}&quot;, permissionName);</span>
+<span class="fc" id="L76">    Permission permission =</span>
         permissionRepository
-<span class="nc" id="L79">            .findByName(permissionName)</span>
-<span class="nc" id="L80">            .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
-<span class="nc" id="L81">    permissionMapper.updatePermission(request, permission);</span>
-<span class="nc" id="L82">    permissionRepository.save(permission);</span>
-<span class="nc" id="L83">    return permissionMapper.toPermissionResponse(permission);</span>
+<span class="fc" id="L78">            .findByName(permissionName)</span>
+<span class="fc" id="L79">            .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+<span class="fc" id="L80">    permissionMapper.updatePermission(request, permission);</span>
+<span class="fc" id="L81">    permissionRepository.save(permission);</span>
+<span class="fc" id="L82">    return permissionMapper.toPermissionResponse(permission);</span>
   }
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public void deletePermissionByName(String permissionName) {
-<span class="nc" id="L88">    log.info(&quot;method deletePermissionByName : {}&quot;, permissionName);</span>
-<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (!permissionRepository.existsByName(permissionName))</span>
-<span class="nc" id="L90">      throw new ApiException(ErrorCode.PERMISSION_NOT_FOUND);</span>
-<span class="nc" id="L91">    permissionRepository.deletePermissionByName(permissionName);</span>
-<span class="nc" id="L92">  }</span>
+<span class="fc" id="L87">    log.info(&quot;method deletePermissionByName : {}&quot;, permissionName);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">    if (!permissionRepository.existsByName(permissionName))</span>
+<span class="fc" id="L89">      throw new ApiException(ErrorCode.PERMISSION_NOT_FOUND);</span>
+<span class="fc" id="L90">    permissionRepository.deletePermissionByName(permissionName);</span>
+<span class="fc" id="L91">  }</span>
 
   @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
   public List&lt;PermissionResponse&gt; searchByKeyword(String keyword) {
-<span class="nc" id="L96">    log.info(&quot;method searchByKeyword : {}&quot;, keyword);</span>
-<span class="nc" id="L97">    return permissionRepository.findAllByNameContainingIgnoreCase(keyword).stream()</span>
-<span class="nc" id="L98">        .map(permissionMapper::toPermissionResponse)</span>
-<span class="nc" id="L99">        .collect(Collectors.toList());</span>
+<span class="fc" id="L95">    log.info(&quot;method searchByKeyword : {}&quot;, keyword);</span>
+<span class="fc" id="L96">    return permissionRepository.findAllByNameContainingIgnoreCase(keyword).stream()</span>
+<span class="fc" id="L97">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="fc" id="L98">        .toList();</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
