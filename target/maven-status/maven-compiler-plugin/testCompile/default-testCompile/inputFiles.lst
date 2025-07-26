@@ -1,3 +1,4 @@
 /home/sontaypham/WorkSpace/SpringBoot/todolist/src/test/java/com/sontaypham/todolist/unit/service/UserServiceUT.java
 /home/sontaypham/WorkSpace/SpringBoot/todolist/src/test/java/com/sontaypham/todolist/integration/service/UserServiceIT.java
+/home/sontaypham/WorkSpace/SpringBoot/todolist/src/test/java/com/sontaypham/todolist/integration/service/CurrentUserServiceIT.java
 /home/sontaypham/WorkSpace/SpringBoot/todolist/src/test/java/com/sontaypham/todolist/TodolistApplicationTests.java

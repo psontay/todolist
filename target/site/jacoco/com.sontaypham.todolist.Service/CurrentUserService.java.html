@@ -14,10 +14,10 @@ public class CurrentUserService {
   private final UserRepository userRepository;
 
   public User getCurrentUser() {
-<span class="nc" id="L17">    String username = SecurityContextHolder.getContext().getAuthentication().getName();</span>
-<span class="nc" id="L18">    return userRepository</span>
-<span class="nc" id="L19">        .findByName(username)</span>
-<span class="nc" id="L20">        .orElseThrow(() -&gt; new ApiException(ErrorCode.USER_NOT_FOUND));</span>
+<span class="fc" id="L17">    String username = SecurityContextHolder.getContext().getAuthentication().getName();</span>
+<span class="fc" id="L18">    return userRepository</span>
+<span class="fc" id="L19">        .findByName(username)</span>
+<span class="fc" id="L20">        .orElseThrow(() -&gt; new ApiException(ErrorCode.USER_NOT_FOUND));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
