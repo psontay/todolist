@@ -163,6 +163,7 @@ class PermissionServiceIT {
     assertEquals(1, results.size());
     assertEquals("TASK_VIEW", results.getFirst().getName());
   }
+
   @Test
   void findByDescription_success() {
     when(permissionRepository.findByDescription("View tasks")).thenReturn(Optional.of(permission));
@@ -178,12 +179,12 @@ class PermissionServiceIT {
   void findByDescription_notFound_throwsException() {
     when(permissionRepository.findByDescription("Unknown")).thenReturn(Optional.empty());
 
-    ApiException exception = assertThrows(ApiException.class, () ->
-                                                  permissionService.findByDescription("Unknown")
-                                         );
+    ApiException exception =
+        assertThrows(ApiException.class, () -> permissionService.findByDescription("Unknown"));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }
+
   @Test
   void existsByName_true() {
     when(permissionRepository.existsByName("TASK_VIEW")).thenReturn(true);
@@ -201,5 +202,4 @@ class PermissionServiceIT {
 
     assertFalse(exists);
   }
-
 }
