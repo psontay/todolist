@@ -96,8 +96,8 @@ public class RoleController {
 
   @Transactional
   @PutMapping("/addPermission/{name}")
-  public ApiResponse<RoleResponse> addPermission( @PathVariable String name,
-                                                  @RequestBody List<String> permissionsName) {
+  public ApiResponse<RoleResponse> addPermission(
+      @PathVariable String name, @RequestBody List<String> permissionsName) {
     return ApiResponse.<RoleResponse>builder()
         .status(1)
         .message("Add Permission To Role Success")

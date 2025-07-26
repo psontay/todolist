@@ -120,7 +120,7 @@ public class AuthenticationService {
     boolean verified = signedJWT.verify(verifier);
     if (!verified || expTime.before(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
     String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
-    if ( jwtId != null && invalidatedTokenRepository.existsById(jwtId))
+    if (jwtId != null && invalidatedTokenRepository.existsById(jwtId))
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     return signedJWT;
   }

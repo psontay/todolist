@@ -1,10 +1,10 @@
 package com.sontaypham.todolist.DTO.Request;
 
 import com.sontaypham.todolist.Validator.EmailConstraint;
+import com.sontaypham.todolist.Validator.NameConstraint;
 import com.sontaypham.todolist.Validator.PasswordConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import com.sontaypham.todolist.Validator.NameConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

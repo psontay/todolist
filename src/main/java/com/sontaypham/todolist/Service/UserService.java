@@ -42,6 +42,7 @@ public class UserService {
   UserMapper userMapper;
   RoleRepository roleRepository;
   TaskRepository taskRepository;
+
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
     user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -63,9 +64,7 @@ public class UserService {
 
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> getAllUsers() {
-    return userRepository.findAll().stream()
-        .map(userMapper::toUserResponse)
-        .toList();
+    return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -130,6 +129,7 @@ public class UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   public void deleteUser(String id) {
+    if (userRepository.findById(id).isEmpty()) throw new ApiException(ErrorCode.USER_NOT_FOUND);
     userRepository.deleteById(id);
   }
 
@@ -157,17 +157,16 @@ public class UserService {
   public UserResponse updateUserPassword(String id, String oldPassword, String newPassword) {
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    if (passwordEncoder.matches(oldPassword, user.getPassword()))
-      user.setPassword(passwordEncoder.encode(newPassword));
+    if (!passwordEncoder.matches(oldPassword, user.getPassword()))
+      throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHES);
+    user.setPassword(passwordEncoder.encode(newPassword));
     log.warn("Change password success!");
     return userMapper.toUserResponse(user);
   }
 
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> searchUsers(String keyword) {
-    return userRepository.findByKeyword(keyword).stream()
-        .map(userMapper::toUserResponse)
-        .toList();
+    return userRepository.findByKeyword(keyword).stream().map(userMapper::toUserResponse).toList();
   }
 
   public UserResponse getUserProfile() {

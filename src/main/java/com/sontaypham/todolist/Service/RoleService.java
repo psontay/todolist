@@ -47,9 +47,7 @@ public class RoleService {
   }
 
   public List<RoleResponse> getAll() {
-    return roleRepository.findAll().stream()
-        .map(roleMapper::toRoleResponse)
-        .toList();
+    return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
   }
 
   @PreAuthorize("hasRole('ADMIN')")
@@ -113,8 +111,7 @@ public class RoleService {
     Set<String> names = new HashSet<>(permissionNames);
     List<Permission> permissions = permissionRepository.findAllByNameIn(names);
     if (permissions.size() != permissionNames.size()) {
-      List<String> foundNames =
-          permissions.stream().map(Permission::getName).toList();
+      List<String> foundNames = permissions.stream().map(Permission::getName).toList();
       List<String> missing = permissionNames.stream().filter(p -> !foundNames.contains(p)).toList();
       throw new ApiException(ErrorCode.PERMISSION_NOT_FOUND, "Missing Permission : " + missing);
     }

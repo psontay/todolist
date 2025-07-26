@@ -21,7 +21,11 @@ public enum ErrorCode {
   FORBIDDEN(1007, "Forbidden", HttpStatus.FORBIDDEN),
   UNAUTHENTICATED(1008, "Unauthenticated", HttpStatus.UNAUTHORIZED),
   INVALID_USERNAME(1009, "Invalid username", HttpStatus.BAD_REQUEST),
-  INVALID_EMAIL(10010, "Invalid email type , must start with {domain} & end with @gmail.com", HttpStatus.BAD_REQUEST),
+  INVALID_EMAIL(
+      10010,
+      "Invalid email type , must start with {domain} & end with @gmail.com",
+      HttpStatus.BAD_REQUEST),
+  PASSWORD_NOT_MATCHES(10011, "Password not matches!", HttpStatus.BAD_REQUEST),
 
   // TASK
   TASK_NOT_FOUND(2001, "Task not found", HttpStatus.NOT_FOUND),
