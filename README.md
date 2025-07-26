@@ -64,3 +64,51 @@ cd todolist
 
 # Build & run
 ./mvnw spring-boot:run
+📌 Example Endpoints
+🔐 Authentication
+http
+Copy
+Edit
+POST /api/auth/login
+POST /api/auth/register
+👤 User
+http
+Copy
+Edit
+GET /api/users/me
+PUT /api/users/{id}
+DELETE /api/users/{id}
+✅ Task
+http
+Copy
+Edit
+POST /api/tasks
+GET /api/tasks
+PUT /api/tasks/{id}
+DELETE /api/tasks/{id}
+🧪 Run Tests
+bash
+Copy
+Edit
+# Unit & integration tests
+./mvnw test
+
+# View coverage (after configured)
+./mvnw verify
+open target/site/jacoco/index.html
+🧠 Folder Structure
+graphql
+Copy
+Edit
+├── controller       # REST Controllers
+├── service          # Business logic
+├── repository       # Spring Data JPA repositories
+├── entities         # JPA Entities
+├── dto              # Request/Response DTOs
+├── security         # JWT and config
+├── mapper           # MapStruct mappers
+├── config           # Application config
+└── exception        # Custom exceptions
+📮 Contact
+Made with ❤️ by @sontay226
+Feel free to contribute or report issues.
