@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthenticationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">todolist</a> &gt; <a href="index.source.html" class="el_package">com.sontaypham.todolist.Controller</a> &gt; <span class="el_source">AuthenticationController.java</span></div><h1>AuthenticationController.java</h1><pre class="source lang-java linenums">package com.sontaypham.todolist.Controller;
+
+import com.nimbusds.jose.JOSEException;
+import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
+import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
+import com.sontaypham.todolist.DTO.Request.LogoutRequest;
+import com.sontaypham.todolist.DTO.Request.RefreshTokenRequest;
+import com.sontaypham.todolist.DTO.Response.ApiResponse;
+import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
+import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
+import com.sontaypham.todolist.DTO.Response.RefreshTokenResponse;
+import com.sontaypham.todolist.Service.AuthenticationService;
+import java.text.ParseException;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/auth&quot;)
+@NoArgsConstructor
+@AllArgsConstructor
+public class AuthenticationController {
+  @Autowired private AuthenticationService authenticationService;
+
+  @PostMapping(&quot;/login&quot;)
+  public ApiResponse&lt;AuthenticationResponse&gt; login(@RequestBody AuthenticationRequest request) {
+<span class="nc" id="L28">    return ApiResponse.&lt;AuthenticationResponse&gt;builder()</span>
+<span class="nc" id="L29">        .status(1)</span>
+<span class="nc" id="L30">        .message(&quot;Login Method&quot;)</span>
+<span class="nc" id="L31">        .data(authenticationService.authenticate(request))</span>
+<span class="nc" id="L32">        .build();</span>
+  }
+
+  @PostMapping(&quot;/introspect&quot;)
+  public ApiResponse&lt;IntrospectResponse&gt; introspect(@RequestBody IntrospectRequest request) {
+<span class="nc" id="L37">    return ApiResponse.&lt;IntrospectResponse&gt;builder()</span>
+<span class="nc" id="L38">        .status(1)</span>
+<span class="nc" id="L39">        .message(&quot;Introspect Method&quot;)</span>
+<span class="nc" id="L40">        .data(authenticationService.introspect(request))</span>
+<span class="nc" id="L41">        .build();</span>
+  }
+
+  @GetMapping(&quot;/refreshToken&quot;)
+  public ApiResponse&lt;RefreshTokenResponse&gt; refreshToken(@RequestBody RefreshTokenRequest request)
+      throws JOSEException, ParseException {
+<span class="nc" id="L47">    return ApiResponse.&lt;RefreshTokenResponse&gt;builder()</span>
+<span class="nc" id="L48">        .status(1)</span>
+<span class="nc" id="L49">        .message(&quot;Refresh Token Method&quot;)</span>
+<span class="nc" id="L50">        .data(authenticationService.refreshToken(request))</span>
+<span class="nc" id="L51">        .build();</span>
+  }
+
+  @PostMapping(&quot;/logout&quot;)
+  ApiResponse&lt;Void&gt; logout(@RequestBody LogoutRequest request)
+      throws ParseException, JOSEException {
+<span class="nc" id="L57">    authenticationService.logout(request);</span>
+<span class="nc" id="L58">    return ApiResponse.&lt;Void&gt;builder().build();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

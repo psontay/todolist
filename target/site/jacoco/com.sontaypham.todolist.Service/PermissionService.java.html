@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PermissionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">todolist</a> &gt; <a href="index.source.html" class="el_package">com.sontaypham.todolist.Service</a> &gt; <span class="el_source">PermissionService.java</span></div><h1>PermissionService.java</h1><pre class="source lang-java linenums">package com.sontaypham.todolist.Service;
+
+import com.sontaypham.todolist.DTO.Request.PermissionRequest;
+import com.sontaypham.todolist.DTO.Response.PermissionResponse;
+import com.sontaypham.todolist.Entities.Permission;
+import com.sontaypham.todolist.Exception.ApiException;
+import com.sontaypham.todolist.Exception.ErrorCode;
+import com.sontaypham.todolist.Mapper.PermissionMapper;
+import com.sontaypham.todolist.Repository.PermissionRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@EnableMethodSecurity
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L24">@Slf4j</span>
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class PermissionService {
+  PermissionRepository permissionRepository;
+  PermissionMapper permissionMapper;
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public PermissionResponse createPermission(PermissionRequest request) {
+<span class="nc" id="L32">    log.info(&quot;Create Permission : {}&quot;, request.getName());</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">    if (permissionRepository.existsByName(request.getName()))</span>
+<span class="nc" id="L34">      throw new ApiException(ErrorCode.PERMISSION_ALREADY_EXISTS);</span>
+<span class="nc" id="L35">    Permission permission = permissionMapper.toPermission(request);</span>
+<span class="nc" id="L36">    permission = permissionRepository.save(permission);</span>
+<span class="nc" id="L37">    return permissionMapper.toPermissionResponse(permission);</span>
+  }
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public List&lt;PermissionResponse&gt; getPermissions() {
+<span class="nc" id="L42">    log.info(&quot;method getPermissions&quot;);</span>
+<span class="nc" id="L43">    return permissionRepository.findAll().stream()</span>
+<span class="nc" id="L44">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="nc" id="L45">        .toList();</span>
+  }
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public PermissionResponse findByName(String permissionName) {
+<span class="nc" id="L50">    log.info(&quot;method findPermissionByName : {}&quot;, permissionName);</span>
+<span class="nc" id="L51">    return permissionRepository</span>
+<span class="nc" id="L52">        .findByName(permissionName)</span>
+<span class="nc" id="L53">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="nc" id="L54">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+  }
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public boolean existsByName(String permissionName) {
+<span class="nc" id="L59">    log.info(&quot;method existsPermissionByPermissionName : {}&quot;, permissionName);</span>
+<span class="nc" id="L60">    return permissionRepository.existsByName(permissionName);</span>
+  }
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public PermissionResponse findByDescription(String description) {
+<span class="nc" id="L65">    log.info(&quot;method findByDescription : {}&quot;, description);</span>
+<span class="nc" id="L66">    return permissionRepository</span>
+<span class="nc" id="L67">        .findByDescription(description)</span>
+<span class="nc" id="L68">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="nc" id="L69">        .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+  }
+
+  @Transactional
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public PermissionResponse updatePermissionByName(
+      String permissionName, PermissionRequest request) {
+<span class="nc" id="L76">    log.info(&quot;method updatePermissionByName : {}&quot;, permissionName);</span>
+<span class="nc" id="L77">    Permission permission =</span>
+        permissionRepository
+<span class="nc" id="L79">            .findByName(permissionName)</span>
+<span class="nc" id="L80">            .orElseThrow(() -&gt; new ApiException(ErrorCode.PERMISSION_NOT_FOUND));</span>
+<span class="nc" id="L81">    permissionMapper.updatePermission(request, permission);</span>
+<span class="nc" id="L82">    permissionRepository.save(permission);</span>
+<span class="nc" id="L83">    return permissionMapper.toPermissionResponse(permission);</span>
+  }
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public void deletePermissionByName(String permissionName) {
+<span class="nc" id="L88">    log.info(&quot;method deletePermissionByName : {}&quot;, permissionName);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">    if (!permissionRepository.existsByName(permissionName))</span>
+<span class="nc" id="L90">      throw new ApiException(ErrorCode.PERMISSION_NOT_FOUND);</span>
+<span class="nc" id="L91">    permissionRepository.deletePermissionByName(permissionName);</span>
+<span class="nc" id="L92">  }</span>
+
+  @PreAuthorize(&quot;hasRole('ADMIN')&quot;)
+  public List&lt;PermissionResponse&gt; searchByKeyword(String keyword) {
+<span class="nc" id="L96">    log.info(&quot;method searchByKeyword : {}&quot;, keyword);</span>
+<span class="nc" id="L97">    return permissionRepository.findAllByNameContainingIgnoreCase(keyword).stream()</span>
+<span class="nc" id="L98">        .map(permissionMapper::toPermissionResponse)</span>
+<span class="nc" id="L99">        .collect(Collectors.toList());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
