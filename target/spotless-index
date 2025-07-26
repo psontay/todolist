@@ -63,5 +63,6 @@ src/main/java/com/sontaypham/todolist/Validator/NameValidator.java 2025-07-26T13
 src/main/java/com/sontaypham/todolist/Validator/PasswordConstraint.java 2025-07-26T13:19:39.529441912Z
 src/main/java/com/sontaypham/todolist/Validator/PasswordValidator.java 2025-07-26T13:19:39.529441912Z
 src/test/java/com/sontaypham/todolist/TodolistApplicationTests.java 2025-07-26T13:19:39.529441912Z
-src/test/java/com/sontaypham/todolist/integration/service/UserServiceIT.java 2025-07-26T13:29:05.081110456Z
+src/test/java/com/sontaypham/todolist/integration/service/CurrentUserServiceIT.java 2025-07-26T13:51:03.107038782Z
+src/test/java/com/sontaypham/todolist/integration/service/UserServiceIT.java 2025-07-26T13:45:52.025204115Z
 src/test/java/com/sontaypham/todolist/unit/service/UserServiceUT.java 2025-07-26T13:19:39.529680145Z

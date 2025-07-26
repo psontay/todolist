@@ -96,6 +96,6 @@ public class PermissionService {
     log.info("method searchByKeyword : {}", keyword);
     return permissionRepository.findAllByNameContainingIgnoreCase(keyword).stream()
         .map(permissionMapper::toPermissionResponse)
-        .collect(Collectors.toList());
+        .toList();
   }
 }
