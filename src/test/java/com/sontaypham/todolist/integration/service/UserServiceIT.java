@@ -1,6 +1,7 @@
 package com.sontaypham.todolist.integration.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -136,6 +138,16 @@ public class UserServiceIT {
     verify(roleRepository).findByName(RoleName.USER.name());
     verify(userRepository).save(user);
     verify(userMapper).toUserResponse(user);
+  }
+
+  @Test
+  void createUser_usernameExists_throwsException() {
+    when(userMapper.toUser(userCreationRequest)).thenReturn(user);
+    when(passwordEncoder.encode("irrelevant")).thenReturn("encodedPassword");
+    when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.of(userRole));
+    when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("duplicate key"));
+    ApiException exception = assertThrows(ApiException.class, () -> userService.create(userCreationRequest));
+    assertEquals("Username already exists", exception.getMessage());
   }
 
   @Test
