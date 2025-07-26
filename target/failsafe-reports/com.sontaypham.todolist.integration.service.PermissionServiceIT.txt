@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.sontaypham.todolist.integration.service.PermissionServiceIT
 -------------------------------------------------------------------------------
-Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.476 s -- in com.sontaypham.todolist.integration.service.PermissionServiceIT
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.353 s -- in com.sontaypham.todolist.integration.service.PermissionServiceIT
