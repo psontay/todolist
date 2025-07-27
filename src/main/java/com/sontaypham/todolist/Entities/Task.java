@@ -27,6 +27,11 @@ public class Task {
   TaskStatus status;
 
   LocalDateTime createdAt;
+  @Column( name = "deadline")
+  LocalDateTime deadline;
+  @Column(name = "warning_email_sent")
+  Boolean warningEmailSent = false;
+
 
   @ManyToOne
   @JoinColumn(name = "user_id")

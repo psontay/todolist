@@ -16,6 +16,7 @@ public interface TaskMapper {
 
   @Mapping(target = "status", source = "status", qualifiedByName = "enumToString")
   @Mapping(target = "createdAt", source = "createdAt", qualifiedByName = "dateToString")
+  @Mapping(target = "deadline" , source = "deadline" , qualifiedByName = "dateToString")
   TaskResponse toTaskResponse(Task task);
 
   @Named("enumToString")
