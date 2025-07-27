@@ -41,15 +41,15 @@ public class AuthenticationService {
 
   @NonFinal
   @Value("${app.jwt.secret}")
-  protected String signerKey;
+  public String signerKey;
 
   @NonFinal
   @Value("${app.jwt.validDuration}")
-  protected long validDuration;
+  public long validDuration;
 
   @NonFinal
   @Value("${app.jwt.refreshableDuration}")
-  protected long refreshableDuration;
+  public long refreshableDuration;
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     var user =
