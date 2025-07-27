@@ -1,10 +1,7 @@
 package com.sontaypham.todolist.Controller;
 
 import com.nimbusds.jose.JOSEException;
-import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
-import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
-import com.sontaypham.todolist.DTO.Request.LogoutRequest;
-import com.sontaypham.todolist.DTO.Request.RefreshTokenRequest;
+import com.sontaypham.todolist.DTO.Request.*;
 import com.sontaypham.todolist.DTO.Response.ApiResponse;
 import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
 import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
@@ -14,6 +11,7 @@ import java.text.ParseException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -57,4 +55,9 @@ public class AuthenticationController {
     authenticationService.logout(request);
     return ApiResponse.<Void>builder().build();
   }
+//  @PostMapping("/reset-password")
+//  public ApiResponse<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+//    authenticationService.initiateResetPassword(request.getEmail());
+//    return ResponseEntity.ok(ApiResponse.success("Reset email sent"));
+//  }
 }

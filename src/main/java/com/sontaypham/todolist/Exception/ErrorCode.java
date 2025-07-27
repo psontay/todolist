@@ -23,9 +23,10 @@ public enum ErrorCode {
   INVALID_USERNAME(1009, "Invalid username", HttpStatus.BAD_REQUEST),
   INVALID_EMAIL(
       10010,
-      "Invalid email type , must start with {domain} & end with @gmail.com",
+      "Invalid email type , must end with @gmail.com",
       HttpStatus.BAD_REQUEST),
   PASSWORD_NOT_MATCHES(10011, "Password not matches!", HttpStatus.BAD_REQUEST),
+  PASSWORD_TYPE_INVALID( 10012 , "Password type invalid , length must be at least {min} characters && at least 1 upper case!", HttpStatus.BAD_REQUEST),
 
   // TASK
   TASK_NOT_FOUND(2001, "Task not found", HttpStatus.NOT_FOUND),

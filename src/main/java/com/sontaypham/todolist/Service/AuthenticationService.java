@@ -179,4 +179,5 @@ public class AuthenticationService {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     }
   }
+
 }

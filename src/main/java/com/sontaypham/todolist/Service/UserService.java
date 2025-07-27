@@ -4,6 +4,7 @@ import com.sontaypham.todolist.DTO.Request.TaskUpdateRequest;
 import com.sontaypham.todolist.DTO.Request.UserCreationRequest;
 import com.sontaypham.todolist.DTO.Request.UserUpdateRequest;
 import com.sontaypham.todolist.DTO.Response.UserResponse;
+import com.sontaypham.todolist.Entities.EmailDetails;
 import com.sontaypham.todolist.Entities.Role;
 import com.sontaypham.todolist.Entities.Task;
 import com.sontaypham.todolist.Entities.User;
@@ -11,6 +12,7 @@ import com.sontaypham.todolist.Enums.RoleName;
 import com.sontaypham.todolist.Exception.ApiException;
 import com.sontaypham.todolist.Exception.ErrorCode;
 import com.sontaypham.todolist.Mapper.UserMapper;
+import com.sontaypham.todolist.Repository.EmailRepository;
 import com.sontaypham.todolist.Repository.RoleRepository;
 import com.sontaypham.todolist.Repository.TaskRepository;
 import com.sontaypham.todolist.Repository.UserRepository;
@@ -35,16 +37,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults( level = AccessLevel.PRIVATE)
 public class UserService {
-  UserRepository userRepository;
-  PasswordEncoder passwordEncoder;
-  UserMapper userMapper;
-  RoleRepository roleRepository;
-  TaskRepository taskRepository;
-
+  final UserRepository userRepository;
+  final PasswordEncoder passwordEncoder;
+  final UserMapper userMapper;
+  final RoleRepository roleRepository;
+  final TaskRepository taskRepository;
+  final EmailRepository emailRepository;
+  String emailMessageBody = "";
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
+    emailMessageBody = "Hello " + user.getName() + "! Congratulations! Your account has been successfully created on " +
+                       "TodoList App.\n" +
+                              "\n" +
+                              "You can now log in and start managing your tasks more efficiently.\n" +
+                              "\n" +
+                              "Wishing you a productive and successful day \uD83D\uDCAA\n" +
+                              "\n" +
+                              "Best regards,  \n" +
+                              "SonTayPham - The TodoList App's Admin";
+    EmailDetails emailDetails = EmailDetails.builder()
+                                            .to(user.getEmail())
+                                            .messageBody(emailMessageBody)
+                                            .subject("Welcome! Your account has created successfully ✔")
+                                            .build();
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     var role =
         roleRepository
@@ -59,6 +76,7 @@ public class UserService {
       log.error(e.getMessage());
       throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
     }
+    emailRepository.sendSimpleMail(emailDetails);
     return userMapper.toUserResponse(user);
   }
 
