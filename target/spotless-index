@@ -49,7 +49,7 @@ src/main/java/com/sontaypham/todolist/Repository/PermissionRepository.java 2025-
 src/main/java/com/sontaypham/todolist/Repository/RoleRepository.java 2025-07-26T13:19:39.529069903Z
 src/main/java/com/sontaypham/todolist/Repository/TaskRepository.java 2025-07-26T13:19:39.529069903Z
 src/main/java/com/sontaypham/todolist/Repository/UserRepository.java 2025-07-26T13:19:39.529069903Z
-src/main/java/com/sontaypham/todolist/Service/AuthenticationService.java 2025-07-26T13:19:39.529069903Z
+src/main/java/com/sontaypham/todolist/Service/AuthenticationService.java 2025-07-26T15:11:28.666502972Z
 src/main/java/com/sontaypham/todolist/Service/CurrentUserService.java 2025-07-26T13:19:39.529219443Z
 src/main/java/com/sontaypham/todolist/Service/PermissionService.java 2025-07-26T14:02:37.626038369Z
 src/main/java/com/sontaypham/todolist/Service/RoleService.java 2025-07-26T13:19:39.529219443Z

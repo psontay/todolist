@@ -84,6 +84,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+            <version>3.5.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -203,6 +208,8 @@
                         <exclude>**/Configuration/**</exclude>
                         <exclude>**/Exception/**</exclude>
                         <exclude>**/Validator/**</exclude>
+                        <exclude>**/Service/AuthenticationService.class</exclude>
+                        <exclude>**/TodolistApplication.class</exclude>
                     </excludes>
                 </configuration>
             </plugin>
