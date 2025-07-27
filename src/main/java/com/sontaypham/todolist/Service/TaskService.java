@@ -34,6 +34,8 @@ public class TaskService {
     User user = currentUserService.getCurrentUser();
     task.setUser(user);
     task.setStatus(TaskStatus.PENDING);
+    task.setDeadline(request.getDeadline());
+    task.setWarningEmailSent(false);
     taskRepository.save(task);
     return taskMapper.toTaskResponse(task);
   }
@@ -64,6 +66,8 @@ public class TaskService {
             .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
     existingTask.setTitle(request.getTitle());
     existingTask.setStatus(request.getStatus());
+    existingTask.setDeadline(request.getDeadline());
+    existingTask.setWarningEmailSent(false);
     taskRepository.save(existingTask);
     return taskMapper.toTaskResponse(existingTask);
   }

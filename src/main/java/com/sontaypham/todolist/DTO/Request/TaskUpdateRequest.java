@@ -4,6 +4,8 @@ import com.sontaypham.todolist.Enums.TaskStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,4 +15,5 @@ public class TaskUpdateRequest {
   String id;
   String title;
   TaskStatus status;
+  LocalDateTime deadline;
 }

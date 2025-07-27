@@ -13,4 +13,5 @@ public class TaskResponse {
   String title;
   String status;
   String createdAt;
+  String deadline;
 }
