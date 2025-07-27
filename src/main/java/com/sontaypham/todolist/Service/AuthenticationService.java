@@ -191,8 +191,11 @@ public class AuthenticationService {
     String newPassword = generateRandomString(12);
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
-    EmailDetails emailDetails = EmailDetails.builder().to(user.getEmail()).messageBody("Your new password : " + newPassword).subject("Password Reset Request for Your TodoList Account").build();
-    emailRepository.sendSimpleMail(emailDetails);
+    emailRepository.sendSimpleMail(EmailDetails.builder()
+                                               .to(user.getEmail())
+                                               .messageBody("Your new password : " + newPassword)
+                                               .subject("Password Reset Request for Your TodoList Account")
+                                               .build());
     return ResetPasswordResponse.builder().message("New password has been sent to your email! Pls check it.").build();
   }
   public static String generateRandomString(int length) {
