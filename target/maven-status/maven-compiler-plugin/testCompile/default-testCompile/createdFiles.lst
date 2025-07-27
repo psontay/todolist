@@ -1,7 +1,0 @@
-com/sontaypham/todolist/integration/service/RoleServiceIT.class
-com/sontaypham/todolist/unit/service/UserServiceUT.class
-com/sontaypham/todolist/TodolistApplicationTests.class
-com/sontaypham/todolist/integration/service/CurrentUserServiceTest.class
-com/sontaypham/todolist/integration/service/TaskServiceIT.class
-com/sontaypham/todolist/integration/service/UserServiceIT.class
-com/sontaypham/todolist/integration/service/PermissionServiceIT.class
