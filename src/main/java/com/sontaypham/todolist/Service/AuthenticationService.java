@@ -5,25 +5,22 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.sontaypham.todolist.DTO.Request.AuthenticationRequest;
-import com.sontaypham.todolist.DTO.Request.IntrospectRequest;
-import com.sontaypham.todolist.DTO.Request.LogoutRequest;
-import com.sontaypham.todolist.DTO.Request.RefreshTokenRequest;
+import com.sontaypham.todolist.DTO.Request.*;
 import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
 import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
 import com.sontaypham.todolist.DTO.Response.RefreshTokenResponse;
-import com.sontaypham.todolist.Entities.InvalidatedToken;
-import com.sontaypham.todolist.Entities.Permission;
-import com.sontaypham.todolist.Entities.Role;
-import com.sontaypham.todolist.Entities.User;
+import com.sontaypham.todolist.DTO.Response.ResetPasswordResponse;
+import com.sontaypham.todolist.Entities.*;
 import com.sontaypham.todolist.Exception.ApiException;
 import com.sontaypham.todolist.Exception.ErrorCode;
+import com.sontaypham.todolist.Repository.EmailRepository;
 import com.sontaypham.todolist.Repository.InvalidatedTokenRepository;
 import com.sontaypham.todolist.Repository.UserRepository;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +30,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+
+import java.security.SecureRandom;
+
 @Service
 @Slf4j
 public class AuthenticationService {
   @Autowired UserRepository userRepository;
   @Autowired InvalidatedTokenRepository invalidatedTokenRepository;
+  @Autowired
+  EmailRepository emailRepository;
+  @Autowired
+  PasswordEncoder passwordEncoder;
+  private static final SecureRandom RANDOM = new SecureRandom();
+  private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
 
   @NonFinal
   @Value("${app.jwt.secret}")
@@ -56,8 +63,8 @@ public class AuthenticationService {
         userRepository
             .findByName(request.getUsername())
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-    boolean userPassword = passwordEncoder.matches(request.getPassword(), user.getPassword());
+    PasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    boolean userPassword = encoder.matches(request.getPassword(), user.getPassword());
     if (!userPassword) throw new ApiException(ErrorCode.UNAUTHENTICATED);
     String token = generateToken(user);
     log.info("Generated token: {}", token);
@@ -179,5 +186,21 @@ public class AuthenticationService {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     }
   }
-
+  public ResetPasswordResponse resetPasswordEmail(ResetPasswordRequest request) {
+    User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    String newPassword = generateRandomString(12);
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+    EmailDetails emailDetails = EmailDetails.builder().to(user.getEmail()).messageBody("Your new password : " + newPassword).subject("Password Reset Request for Your TodoList Account").build();
+    emailRepository.sendSimpleMail(emailDetails);
+    return ResetPasswordResponse.builder().message("New password has been sent to your email! Pls check it.").build();
+  }
+  public static String generateRandomString(int length) {
+    StringBuilder result = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      int index = RANDOM.nextInt(CHARACTERS.length());
+      result.append(CHARACTERS.charAt(index));
+    }
+    return result.toString();
+  }
 }

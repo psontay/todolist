@@ -2,10 +2,7 @@ package com.sontaypham.todolist.Controller;
 
 import com.nimbusds.jose.JOSEException;
 import com.sontaypham.todolist.DTO.Request.*;
-import com.sontaypham.todolist.DTO.Response.ApiResponse;
-import com.sontaypham.todolist.DTO.Response.AuthenticationResponse;
-import com.sontaypham.todolist.DTO.Response.IntrospectResponse;
-import com.sontaypham.todolist.DTO.Response.RefreshTokenResponse;
+import com.sontaypham.todolist.DTO.Response.*;
 import com.sontaypham.todolist.Service.AuthenticationService;
 import java.text.ParseException;
 import lombok.AllArgsConstructor;
@@ -55,9 +52,12 @@ public class AuthenticationController {
     authenticationService.logout(request);
     return ApiResponse.<Void>builder().build();
   }
-//  @PostMapping("/reset-password")
-//  public ApiResponse<String> resetPassword(@RequestBody ResetPasswordRequest request) {
-//    authenticationService.initiateResetPassword(request.getEmail());
-//    return ResponseEntity.ok(ApiResponse.success("Reset email sent"));
-//  }
+  @PostMapping("/reset-password")
+  public ApiResponse<ResetPasswordResponse> resetPasswordEmail(@RequestBody ResetPasswordRequest request) {
+    return ApiResponse.<ResetPasswordResponse>builder()
+                      .status(1)
+                      .data(authenticationService.resetPasswordEmail(request))
+                      .message("Reset Password Method")
+                      .build();
+  }
 }

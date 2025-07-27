@@ -15,20 +15,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtRevocationFilter extends OncePerRequestFilter {
 
-  @Autowired private AuthenticationService authenticationService;
+  private final TokenRevocationValidator validator;
+  public JwtRevocationFilter(TokenRevocationValidator validator) {
+    this.validator = validator;
+  }
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
+          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+          throws ServletException, IOException {
 
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
       String token = authHeader.substring(7);
-
       try {
         SignedJWT jwt = SignedJWT.parse(token);
-        authenticationService.assertTokenNotRevoked(jwt);
+        validator.assertNotRevoked(jwt);
       } catch (Exception e) {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
