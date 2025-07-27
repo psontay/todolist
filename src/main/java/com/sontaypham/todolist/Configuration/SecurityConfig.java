@@ -26,7 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final String[] PUBLIC_ENDPOINTS = {
-    "/users/create", "/auth/login", "/auth/logout", "/auth/introspect"
+    "/users/create", "/auth/login", "/auth/logout", "/auth/introspect" , "/email/sendSimpleMail"
   };
 
   @Value("${app.jwt.secret}")

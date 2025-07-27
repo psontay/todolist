@@ -16,15 +16,13 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
-  @Size(min = 3, message = "USERNAME_LENGTH_INVALID")
   @NameConstraint(message = "INVALID_USERNAME")
   String name;
 
-  @Size(min = 6, message = "PASSWORD_INVALID")
   @PasswordConstraint(message = "PASSWORD_TYPE_INVALID")
   String password;
 
   @NotBlank(message = "EMAIL_EMPTY")
-  @EmailConstraint(domain = "user@", message = "INVALID_EMAIL")
+  @EmailConstraint( message = "INVALID_EMAIL")
   String email;
 }

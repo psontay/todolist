@@ -7,7 +7,7 @@ public class PasswordValidator implements ConstraintValidator<PasswordConstraint
   @Override
   public boolean isValid(String password, ConstraintValidatorContext context) {
     if (password == null || password.isBlank()) return true;
-    return password.chars().anyMatch(Character::isUpperCase);
+    return password.chars().anyMatch(Character::isUpperCase) && password.length() >= 6;
   }
 
   @Override
