@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EmailResponse {
-    boolean success;
-    String message;
+  boolean success;
+  String message;
 }

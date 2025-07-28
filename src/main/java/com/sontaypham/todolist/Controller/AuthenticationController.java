@@ -8,7 +8,6 @@ import java.text.ParseException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,12 +51,14 @@ public class AuthenticationController {
     authenticationService.logout(request);
     return ApiResponse.<Void>builder().build();
   }
+
   @PostMapping("/reset-password")
-  public ApiResponse<ResetPasswordResponse> resetPasswordEmail(@RequestBody ResetPasswordRequest request) {
+  public ApiResponse<ResetPasswordResponse> resetPasswordEmail(
+      @RequestBody ResetPasswordRequest request) {
     return ApiResponse.<ResetPasswordResponse>builder()
-                      .status(1)
-                      .data(authenticationService.resetPasswordEmail(request))
-                      .message("Reset Password Method")
-                      .build();
+        .status(1)
+        .data(authenticationService.resetPasswordEmail(request))
+        .message("Reset Password Method")
+        .build();
   }
 }

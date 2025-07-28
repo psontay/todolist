@@ -1,13 +1,11 @@
 package com.sontaypham.todolist.Configuration;
 
 import com.nimbusds.jwt.SignedJWT;
-import com.sontaypham.todolist.Service.AuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -16,14 +14,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtRevocationFilter extends OncePerRequestFilter {
 
   private final TokenRevocationValidator validator;
+
   public JwtRevocationFilter(TokenRevocationValidator validator) {
     this.validator = validator;
   }
 
   @Override
   protected void doFilterInternal(
-          HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-          throws ServletException, IOException {
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
 
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Bearer ")) {

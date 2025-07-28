@@ -7,7 +7,7 @@ public class EmailValidator implements ConstraintValidator<EmailConstraint, Stri
   @Override
   public boolean isValid(String userMail, ConstraintValidatorContext context) {
     if (userMail == null || userMail.isBlank()) return true;
-    return  userMail.endsWith("@gmail.com") ||  userMail.endsWith(".edu.vn");
+    return userMail.endsWith("@gmail.com") || userMail.endsWith(".edu.vn");
   }
 
   @Override

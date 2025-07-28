@@ -26,7 +26,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final String[] PUBLIC_ENDPOINTS = {
-    "/users/create", "/auth/login", "/auth/logout", "/auth/introspect" , "/email/sendSimpleMail" , "/auth/reset-password"
+    "/users/create",
+    "/auth/login",
+    "/auth/logout",
+    "/auth/introspect",
+    "/email/sendSimpleMail",
+    "/auth/reset-password",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/swagger-resources/**",
+          "/swagger-ui.html",
+          "/swagger-resources",
+          "/configuration/ui",
+          "/configuration/security",
+          "/api/public/**",
+          "/api/public/authenticate",
+          "/actuator/*",
+          "/webjars/**",
+          "/api-docs/**",
   };
 
   @Value("${app.jwt.secret}")
@@ -40,7 +57,7 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         request ->
             request
-                .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .requestMatchers( PUBLIC_ENDPOINTS)
                 .permitAll()
                 .anyRequest()
                 .authenticated());
