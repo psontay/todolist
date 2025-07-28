@@ -22,6 +22,6 @@ public class UserCreationRequest {
   String password;
 
   @NotBlank(message = "EMAIL_EMPTY")
-  @EmailConstraint( message = "INVALID_EMAIL")
+  @EmailConstraint(message = "INVALID_EMAIL")
   String email;
 }

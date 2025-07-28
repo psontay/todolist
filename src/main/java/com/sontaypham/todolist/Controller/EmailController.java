@@ -16,14 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/email")
 @RequiredArgsConstructor
 public class EmailController {
-    private final EmailService emailService;
-    @PostMapping("/sendSimpleMail")
-    public ApiResponse<EmailResponse> sendEmail(@RequestBody EmailDetails emailDetails) {
-        try {
-            return ApiResponse.<EmailResponse>builder().status(1).message("Sent email success!").data(emailService.sendSimpleMail(emailDetails)).build();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return ApiResponse.<EmailResponse>builder().status(0).message("Sent email failed").data(new EmailResponse(false , "Internal server error")).build();
-        }
+  private final EmailService emailService;
+
+  @PostMapping("/sendSimpleMail")
+  public ApiResponse<EmailResponse> sendEmail(@RequestBody EmailDetails emailDetails) {
+    try {
+      return ApiResponse.<EmailResponse>builder()
+          .status(1)
+          .message("Sent email success!")
+          .data(emailService.sendSimpleMail(emailDetails))
+          .build();
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return ApiResponse.<EmailResponse>builder()
+          .status(0)
+          .message("Sent email failed")
+          .data(new EmailResponse(false, "Internal server error"))
+          .build();
     }
+  }
 }

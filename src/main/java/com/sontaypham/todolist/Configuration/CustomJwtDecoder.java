@@ -1,10 +1,8 @@
 package com.sontaypham.todolist.Configuration;
 
-import com.sontaypham.todolist.Service.AuthenticationService;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,12 +17,12 @@ public class CustomJwtDecoder implements JwtDecoder {
   @Value("${app.jwt.secret}")
   private String signerKey;
 
-//  private AuthenticationService authenticationService;
+  //  private AuthenticationService authenticationService;
   private NimbusJwtDecoder nimbusJwtDecoder = null;
 
-//  public CustomJwtDecoder(ObjectProvider<AuthenticationService> provider) {
-//    this.authenticationService = provider.getIfAvailable();
-//  }
+  //  public CustomJwtDecoder(ObjectProvider<AuthenticationService> provider) {
+  //    this.authenticationService = provider.getIfAvailable();
+  //  }
 
   @Override
   public Jwt decode(String token) throws JwtException {

@@ -16,11 +16,11 @@ import com.sontaypham.todolist.Exception.ErrorCode;
 import com.sontaypham.todolist.Repository.EmailRepository;
 import com.sontaypham.todolist.Repository.InvalidatedTokenRepository;
 import com.sontaypham.todolist.Repository.UserRepository;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,21 +30,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-
-import java.security.SecureRandom;
-
 @Service
 @Slf4j
 public class AuthenticationService {
   @Autowired UserRepository userRepository;
   @Autowired InvalidatedTokenRepository invalidatedTokenRepository;
-  @Autowired
-  EmailRepository emailRepository;
-  @Autowired
-  PasswordEncoder passwordEncoder;
+  @Autowired EmailRepository emailRepository;
+  @Autowired PasswordEncoder passwordEncoder;
   private static final SecureRandom RANDOM = new SecureRandom();
-  private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
+  private static final String CHARACTERS =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   @NonFinal
   @Value("${app.jwt.secret}")
@@ -186,18 +181,26 @@ public class AuthenticationService {
       throw new ApiException(ErrorCode.TOKEN_INVALID);
     }
   }
+
   public ResetPasswordResponse resetPasswordEmail(ResetPasswordRequest request) {
-    User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    User user =
+        userRepository
+            .findByEmail(request.getEmail())
+            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     String newPassword = generateRandomString(12);
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
-    emailRepository.sendSimpleMail(EmailDetails.builder()
-                                               .to(user.getEmail())
-                                               .messageBody("Your new password : " + newPassword)
-                                               .subject("Password Reset Request for Your TodoList Account")
-                                               .build());
-    return ResetPasswordResponse.builder().message("New password has been sent to your email! Pls check it.").build();
+    emailRepository.sendSimpleMail(
+        EmailDetails.builder()
+            .to(user.getEmail())
+            .messageBody("Your new password : " + newPassword)
+            .subject("Password Reset Request for Your TodoList Account")
+            .build());
+    return ResetPasswordResponse.builder()
+        .message("New password has been sent to your email! Pls check it.")
+        .build();
   }
+
   public static String generateRandomString(int length) {
     StringBuilder result = new StringBuilder(length);
     for (int i = 0; i < length; i++) {

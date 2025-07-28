@@ -16,28 +16,34 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmailService implements EmailRepository {
-    @Value("${spring.mail.username}")
-    String from;
-    @Autowired
-    JavaMailSender mailSender;
-    @Override
-    public EmailResponse sendSimpleMail(EmailDetails details) {
-        try{
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(from);
-            message.setTo(details.getTo());
-            message.setSubject(details.getSubject());
-            message.setText(details.getMessageBody());
-            // sending email
-            mailSender.send(message);
-            return EmailResponse.builder().success(true).message("Email sent successfully to " + details.getTo()).build();
-        }catch (Exception e){
-            log.error(e.getMessage());
-            return EmailResponse.builder().success(false).message("Failed to sent email : " + e.getMessage()).build();
-        }
-    }
+  @Value("${spring.mail.username}")
+  String from;
 
-    @Override
-    public void sendMailWithAttachment(EmailDetails details) {
+  @Autowired JavaMailSender mailSender;
+
+  @Override
+  public EmailResponse sendSimpleMail(EmailDetails details) {
+    try {
+      SimpleMailMessage message = new SimpleMailMessage();
+      message.setFrom(from);
+      message.setTo(details.getTo());
+      message.setSubject(details.getSubject());
+      message.setText(details.getMessageBody());
+      // sending email
+      mailSender.send(message);
+      return EmailResponse.builder()
+          .success(true)
+          .message("Email sent successfully to " + details.getTo())
+          .build();
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return EmailResponse.builder()
+          .success(false)
+          .message("Failed to sent email : " + e.getMessage())
+          .build();
     }
+  }
+
+  @Override
+  public void sendMailWithAttachment(EmailDetails details) {}
 }

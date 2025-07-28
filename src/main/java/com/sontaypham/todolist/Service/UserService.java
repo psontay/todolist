@@ -37,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults( level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserService {
   final UserRepository userRepository;
   final PasswordEncoder passwordEncoder;
@@ -46,22 +46,27 @@ public class UserService {
   final TaskRepository taskRepository;
   final EmailRepository emailRepository;
   String emailMessageBody = "";
+
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
-    emailMessageBody = "Hello " + user.getName() + "! Congratulations! Your account has been successfully created on " +
-                       "TodoList App.\n" +
-                              "\n" +
-                              "You can now log in and start managing your tasks more efficiently.\n" +
-                              "\n" +
-                              "Wishing you a productive and successful day \uD83D\uDCAA\n" +
-                              "\n" +
-                              "Best regards,  \n" +
-                              "SonTayPham - The TodoList App's Admin";
-    EmailDetails emailDetails = EmailDetails.builder()
-                                            .to(user.getEmail())
-                                            .messageBody(emailMessageBody)
-                                            .subject("Welcome! Your account has created successfully ✔")
-                                            .build();
+    emailMessageBody =
+        "Hello "
+            + user.getName()
+            + "! Congratulations! Your account has been successfully created on "
+            + "TodoList App.\n"
+            + "\n"
+            + "You can now log in and start managing your tasks more efficiently.\n"
+            + "\n"
+            + "Wishing you a productive and successful day \uD83D\uDCAA\n"
+            + "\n"
+            + "Best regards,  \n"
+            + "SonTayPham - The TodoList App's Admin";
+    EmailDetails emailDetails =
+        EmailDetails.builder()
+            .to(user.getEmail())
+            .messageBody(emailMessageBody)
+            .subject("Welcome! Your account has created successfully ✔")
+            .build();
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     var role =
         roleRepository
