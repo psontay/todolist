@@ -44,6 +44,7 @@ public class SecurityConfig {
           "/actuator/*",
           "/webjars/**",
           "/api-docs/**",
+          "/tasks/create"
   };
 
   @Value("${app.jwt.secret}")
