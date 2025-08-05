@@ -51,7 +51,7 @@ public class UserService {
   final EmailRepository emailRepository;
   String emailMessageBody = "";
 
-  @CachePut( cacheNames = "user-create" )
+  @CachePut( cacheNames = "user-create" , key = "create" )
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
     emailMessageBody =
