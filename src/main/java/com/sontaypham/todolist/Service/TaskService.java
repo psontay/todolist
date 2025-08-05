@@ -17,6 +17,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +31,7 @@ public class TaskService {
   TaskRepository taskRepository;
   TaskMapper taskMapper;
   CurrentUserService currentUserService;
-
+  @CachePut( cacheNames = "task-create" , key = "#result.id")
   public TaskResponse create(TaskCreationRequest request) {
     Task task = taskMapper.toTask(request);
     User user = currentUserService.getCurrentUser();
@@ -39,13 +42,13 @@ public class TaskService {
     taskRepository.save(task);
     return taskMapper.toTaskResponse(task);
   }
-
+  @Cacheable( cacheNames = "task-list" , key = "#currentUserService.getCurrentUser().id")
   public List<TaskResponse> getAllTasksOfCurrentUser() {
     User user = currentUserService.getCurrentUser();
     Set<Task> currentTasks = user.getTasks();
     return currentTasks.stream().map(taskMapper::toTaskResponse).toList();
   }
-
+  @Cacheable(cacheNames = "task-by-id" , key="#id")
   public TaskResponse getTaskById(String id) {
     User user = currentUserService.getCurrentUser();
     Set<Task> currentTasks = user.getTasks();
@@ -56,7 +59,7 @@ public class TaskService {
             .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
     return taskMapper.toTaskResponse(isExistsTask);
   }
-
+  @CachePut( cacheNames = "task-by-id" , key="#id")
   public TaskResponse updateTask(String id, TaskUpdateRequest request) {
     User user = currentUserService.getCurrentUser();
     Task existingTask =
@@ -71,7 +74,7 @@ public class TaskService {
     taskRepository.save(existingTask);
     return taskMapper.toTaskResponse(existingTask);
   }
-
+  @CacheEvict(cacheNames = "task-by-id" , key = "#id")
   @Transactional
   public void deleteTask(String id) {
     User user = currentUserService.getCurrentUser();
@@ -87,7 +90,7 @@ public class TaskService {
     log.info("Deleting task with id {}", id);
     taskRepository.delete(task);
   }
-
+  @Cacheable( cacheNames = "task-by-status" , key = "#status + '_' + currentUserService.getCurrentUser().id")
   public List<TaskResponse> getTasksByStatus(TaskStatus status) {
     User user = currentUserService.getCurrentUser();
     Set<Task> currentTasks = user.getTasks();
@@ -96,7 +99,7 @@ public class TaskService {
         .map(taskMapper::toTaskResponse)
         .toList();
   }
-
+  @Cacheable( cacheNames = "task-by-keyword" , key = "#keyword + '_' + currentUserService.getCurrentUser().id")
   public List<TaskResponse> searchTasks(String keyword) {
     User user = currentUserService.getCurrentUser();
     Set<Task> currentTasks = user.getTasks();
@@ -105,7 +108,7 @@ public class TaskService {
         .map(taskMapper::toTaskResponse)
         .toList();
   }
-
+  @Cacheable( cacheNames = "task-statistics" , key = "#currentUserService.getCurrentUser().id")
   public TaskStatisticsResponse getStatistics() {
     User user = currentUserService.getCurrentUser();
     Set<Task> tasks = user.getTasks();
