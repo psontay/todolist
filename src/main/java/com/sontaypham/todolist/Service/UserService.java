@@ -27,7 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,7 +50,8 @@ public class UserService {
   final EmailRepository emailRepository;
   String emailMessageBody = "";
 
-  @CachePut( cacheNames = "user-create" , key = "create" )
+  @CachePut(cacheNames = "user-create", key = "#result.id")
+  @CacheEvict(cacheNames = "user-list", allEntries = true)
   public UserResponse create(UserCreationRequest request) {
     User user = userMapper.toUser(request);
     emailMessageBody =
@@ -89,12 +89,14 @@ public class UserService {
     emailRepository.sendSimpleMail(emailDetails);
     return userMapper.toUserResponse(user);
   }
-  @Cacheable( cacheNames = "user-list" )
+
+  @Cacheable(cacheNames = "user-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> getAllUsers() {
     return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
   }
-  @Cacheable( cacheNames = "user-by-id" , key = "#id")
+
+  @Cacheable(cacheNames = "user-by-id", key = "#id")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserById(String id) {
     return userRepository
@@ -102,7 +104,8 @@ public class UserService {
         .map(userMapper::toUserResponse)
         .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
   }
-  @Cacheable( cacheNames = "user-by-email" , key = "#email")
+
+  @Cacheable(cacheNames = "user-by-email", key = "#email")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserByEmail(String email) {
     return userRepository
@@ -110,7 +113,10 @@ public class UserService {
         .map(userMapper::toUserResponse)
         .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
   }
-  @CacheEvict( cacheNames = "user-by-id" , key = "#id")
+
+  @CacheEvict(
+      cacheNames = {"user-by-id", "user-list"},
+      key = "#id")
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
@@ -153,7 +159,10 @@ public class UserService {
     user.setRoles(roles);
     userRepository.save(user);
   }
-  @CacheEvict( cacheNames = "user-by-id" , key = "#id")
+
+  @CacheEvict(
+      cacheNames = {"user-by-id", "user-list"},
+      key = "#id")
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   public void deleteUser(String id) {
@@ -162,7 +171,7 @@ public class UserService {
   }
 
   // advanced service
-  @CachePut( cacheNames = "user-by-id" , key = "#id")
+  @CachePut(cacheNames = "user-by-id", key = "#id")
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse assignRoleToUser(String id, String roleName) {
@@ -180,7 +189,8 @@ public class UserService {
     userRepository.save(user);
     return userMapper.toUserResponse(user);
   }
-  @CacheEvict( cacheNames = "user-by-id" , key = "#id")
+
+  @CachePut(cacheNames = "user-by-id", key = "#id")
   @Transactional
   @PostAuthorize("returnObject.name == authentication.name")
   public UserResponse updateUserPassword(String id, String oldPassword, String newPassword) {
@@ -192,12 +202,14 @@ public class UserService {
     log.warn("Change password success!");
     return userMapper.toUserResponse(user);
   }
-  @Cacheable( cacheNames = "user-by-keyword" , key = "#keyword")
+
+  @Cacheable(cacheNames = "user-by-keyword", key = "#keyword")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> searchUsers(String keyword) {
     return userRepository.findByKeyword(keyword).stream().map(userMapper::toUserResponse).toList();
   }
-  @Cacheable( cacheNames = "user-profile" , key = "current")
+
+  @Cacheable(cacheNames = "user-profile", key = "#root.target.getCurrentUserId()")
   public UserResponse getUserProfile() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Jwt jwt = (Jwt) authentication.getPrincipal();
@@ -207,5 +219,11 @@ public class UserService {
             .findById(userId)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     return userMapper.toUserResponse(user);
+  }
+
+  public String getCurrentUserId() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    Jwt jwt = (Jwt) authentication.getPrincipal();
+    return jwt.getClaim("userId");
   }
 }
