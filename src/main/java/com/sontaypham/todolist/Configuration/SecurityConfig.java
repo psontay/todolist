@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,16 +34,16 @@ public class SecurityConfig {
     "/swagger-ui/**",
     "/v3/api-docs/**",
     "/swagger-resources/**",
-          "/swagger-ui.html",
-          "/swagger-resources",
-          "/configuration/ui",
-          "/configuration/security",
-          "/api/public/**",
-          "/api/public/authenticate",
-          "/actuator/*",
-          "/webjars/**",
-          "/api-docs/**",
-          "/tasks/create"
+    "/swagger-ui.html",
+    "/swagger-resources",
+    "/configuration/ui",
+    "/configuration/security",
+    "/api/public/**",
+    "/api/public/authenticate",
+    "/actuator/*",
+    "/webjars/**",
+    "/api-docs/**",
+    "/tasks/create"
   };
 
   @Value("${app.jwt.secret}")
@@ -57,11 +56,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
         request ->
-            request
-                .requestMatchers( PUBLIC_ENDPOINTS)
-                .permitAll()
-                .anyRequest()
-                .authenticated());
+            request.requestMatchers(PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated());
     http.oauth2ResourceServer(
             oauth2 ->
                 oauth2.jwt(

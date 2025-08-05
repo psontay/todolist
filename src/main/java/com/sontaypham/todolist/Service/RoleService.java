@@ -14,6 +14,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,12 @@ public class RoleService {
   RoleMapper roleMapper;
   PermissionRepository permissionRepository;
 
+  @Caching(
+      put = @CachePut(cacheNames = "role-create", key = "#result.name"),
+      evict = {
+        @CacheEvict(cacheNames = "role-list", key = "'all'"),
+        @CacheEvict(cacheNames = "role-keyword", allEntries = true)
+      })
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse create(RoleRequest roleRequest) {
     log.info("<Create Role Method> {}", roleRequest.getName());
@@ -46,10 +56,13 @@ public class RoleService {
     return roleMapper.toRoleResponse(role);
   }
 
+  @Cacheable(cacheNames = "role-list", key = "'all'")
+  @PreAuthorize("hasRole('ADMIN')")
   public List<RoleResponse> getAll() {
     return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
   }
 
+  @Cacheable(cacheNames = "role-by-name", key = "#roleName")
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse findByName(String roleName) {
     log.info("<Find Role Method> {}", roleName);
@@ -65,6 +78,7 @@ public class RoleService {
     return roleRepository.existsByName(roleName);
   }
 
+  @Cacheable(cacheNames = "role-by-des", key = "#des")
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse findByDescription(String des) {
     log.info("<Find Role By Description Method> {}", des);
@@ -74,6 +88,12 @@ public class RoleService {
         .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
   }
 
+  @Caching(
+      evict = {
+        @CacheEvict(cacheNames = "role-by-name", key = "#roleName"),
+        @CacheEvict(cacheNames = "role-list", key = "'all'"),
+        @CacheEvict(cacheNames = "role-keyword", allEntries = true)
+      })
   @PreAuthorize("hasRole('ADMIN')")
   public void deleteByName(String roleName) {
     log.info("<Delete Role Method> {}", roleName);
@@ -81,6 +101,7 @@ public class RoleService {
     roleRepository.deleteByName(roleName);
   }
 
+  @Cacheable(cacheNames = "role-keyword", key = "#keyWord")
   @PreAuthorize("hasRole('ADMIN')")
   public List<RoleResponse> findAllByNameIgnoreCase(String keyWord) {
     log.info("<Find Role By Keyword Method> {}", keyWord);
@@ -89,6 +110,10 @@ public class RoleService {
         .toList();
   }
 
+  @CachePut(cacheNames = "role-by-name", key = "#result.name")
+  @CacheEvict(
+      cacheNames = {"role-list", "role-keyword"},
+      allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse updateFromRequest(RoleRequest roleRequest) {
     log.info("<Update Role Method> {}", roleRequest.getName());
@@ -101,6 +126,10 @@ public class RoleService {
     return roleMapper.toRoleResponse(role);
   }
 
+  @CachePut(cacheNames = "role-by-name", key = "#roleName")
+  @CacheEvict(
+      cacheNames = {"role-list", "role-keyword"},
+      allEntries = true)
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse addPermissionsToRole(String roleName, List<String> permissionNames) {
