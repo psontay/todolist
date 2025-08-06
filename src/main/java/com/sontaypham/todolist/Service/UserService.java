@@ -53,6 +53,7 @@ public class UserService {
   @CachePut(cacheNames = "user-create", key = "#result.id")
   @CacheEvict(cacheNames = "user-list", allEntries = true)
   public UserResponse create(UserCreationRequest request) {
+    log.info("Creating new user: {}" , request.getName());
     User user = userMapper.toUser(request);
     emailMessageBody =
         "Hello "
@@ -93,12 +94,14 @@ public class UserService {
   @Cacheable(cacheNames = "user-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> getAllUsers() {
+    log.info("Fetching all users");
     return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
   }
 
   @Cacheable(cacheNames = "user-by-id", key = "#id")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserById(String id) {
+    log.info("Fetching user by id: {}", id);
     return userRepository
         .findById(id)
         .map(userMapper::toUserResponse)
@@ -108,6 +111,7 @@ public class UserService {
   @Cacheable(cacheNames = "user-by-email", key = "#email")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserByEmail(String email) {
+    log.info("Fetching user by email: {}", email);
     return userRepository
         .findByEmail(email)
         .map(userMapper::toUserResponse)
@@ -120,6 +124,7 @@ public class UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
+    log.info("Updating user: {}", request.getName());
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
@@ -167,6 +172,7 @@ public class UserService {
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
   public void deleteUser(String id) {
     if (userRepository.findById(id).isEmpty()) throw new ApiException(ErrorCode.USER_NOT_FOUND);
+    log.warn("Deleting user: {}", id);
     userRepository.deleteById(id);
   }
 
@@ -177,7 +183,7 @@ public class UserService {
   public UserResponse assignRoleToUser(String id, String roleName) {
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-
+    log.info("Assign Role To User : {}", id);
     Role role =
         roleRepository
             .findByName(roleName)
@@ -196,6 +202,7 @@ public class UserService {
   public UserResponse updateUserPassword(String id, String oldPassword, String newPassword) {
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    log.info("Update user's password: {}", id);
     if (!passwordEncoder.matches(oldPassword, user.getPassword()))
       throw new ApiException(ErrorCode.PASSWORD_NOT_MATCHES);
     user.setPassword(passwordEncoder.encode(newPassword));
@@ -206,6 +213,7 @@ public class UserService {
   @Cacheable(cacheNames = "user-by-keyword", key = "#keyword")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> searchUsers(String keyword) {
+    log.info("Searching users by keyword: {}", keyword);
     return userRepository.findByKeyword(keyword).stream().map(userMapper::toUserResponse).toList();
   }
 
@@ -214,6 +222,7 @@ public class UserService {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Jwt jwt = (Jwt) authentication.getPrincipal();
     String userId = jwt.getClaim("userId");
+    log.info("Fetching user profile: {}", userId);
     User user =
         userRepository
             .findById(userId)
@@ -224,6 +233,7 @@ public class UserService {
   public String getCurrentUserId() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Jwt jwt = (Jwt) authentication.getPrincipal();
+    log.info("Fetching current user");
     return jwt.getClaim("userId");
   }
 }

@@ -12,6 +12,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,10 @@ public class PermissionService {
   PermissionRepository permissionRepository;
   PermissionMapper permissionMapper;
 
+  @CachePut(cacheNames = "permission-by-name", key = "#result.name")
+  @CacheEvict(
+      cacheNames = {"permission-list", "permission-keyword"},
+      allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse createPermission(PermissionRequest request) {
     log.info("Create Permission : {}", request.getName());
@@ -36,6 +43,7 @@ public class PermissionService {
     return permissionMapper.toPermissionResponse(permission);
   }
 
+  @Cacheable(cacheNames = "permission-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<PermissionResponse> getPermissions() {
     log.info("method getPermissions");
@@ -44,6 +52,7 @@ public class PermissionService {
         .toList();
   }
 
+  @Cacheable(cacheNames = "permission-by-name", key = "#permissionName")
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse findByName(String permissionName) {
     log.info("method findPermissionByName : {}", permissionName);
@@ -59,6 +68,7 @@ public class PermissionService {
     return permissionRepository.existsByName(permissionName);
   }
 
+  @Cacheable(cacheNames = "permission-by-description", key = "#description")
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse findByDescription(String description) {
     log.info("method findByDescription : {}", description);
@@ -68,6 +78,10 @@ public class PermissionService {
         .orElseThrow(() -> new ApiException(ErrorCode.PERMISSION_NOT_FOUND));
   }
 
+  @CachePut(cacheNames = "permission-by-name", key = "#result.name")
+  @CacheEvict(
+      cacheNames = {"permission-list", "permission-keyword"},
+      allEntries = true)
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse updatePermissionByName(
@@ -82,6 +96,9 @@ public class PermissionService {
     return permissionMapper.toPermissionResponse(permission);
   }
 
+  @CacheEvict(
+      cacheNames = {"permission-by-name", "permission-list", "permission-keyword"},
+      allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public void deletePermissionByName(String permissionName) {
     log.info("method deletePermissionByName : {}", permissionName);
@@ -90,6 +107,7 @@ public class PermissionService {
     permissionRepository.deletePermissionByName(permissionName);
   }
 
+  @Cacheable(cacheNames = "permission-keyword", key = "#keyword")
   @PreAuthorize("hasRole('ADMIN')")
   public List<PermissionResponse> searchByKeyword(String keyword) {
     log.info("method searchByKeyword : {}", keyword);
