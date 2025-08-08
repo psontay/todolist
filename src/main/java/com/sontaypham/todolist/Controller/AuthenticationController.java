@@ -7,9 +7,10 @@ import com.sontaypham.todolist.Service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.text.ParseException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Tag(name = "Authentication")
-public class AuthenticationController {
-
-  @Autowired private AuthenticationService authenticationService;
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class AuthenticationController extends BaseController {
+  AuthenticationService authenticationService;
 
   @Operation(summary = "Authenticate user and return JWT token")
   @PostMapping("/login")

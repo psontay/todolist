@@ -53,7 +53,7 @@ public class UserService {
   @CachePut(cacheNames = "user-create", key = "#result.id")
   @CacheEvict(cacheNames = "user-list", allEntries = true)
   public UserResponse create(UserCreationRequest request) {
-    log.info("Creating new user: {}" , request.getName());
+    log.info("Creating new user: {}", request.getName());
     User user = userMapper.toUser(request);
     emailMessageBody =
         "Hello "
