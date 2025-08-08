@@ -1,6 +1,6 @@
 package com.sontaypham.todolist.Controller;
 
-import com.sontaypham.todolist.DTO.Response.ApiResponse;
+import com.sontaypham.todolist.DTO.Response.buildSuccessResponse;
 import com.sontaypham.todolist.DTO.Response.EmailResponse;
 import com.sontaypham.todolist.Entities.EmailDetails;
 import com.sontaypham.todolist.Service.EmailService;
@@ -25,7 +25,7 @@ public class EmailController extends BaseController {
   }
 
   @PostMapping("/sendSimpleMail")
-  public ResponseEntity<ApiResponse<EmailResponse>> sendEmail(
+  public ResponseEntity<buildSuccessResponse<EmailResponse>> sendEmail(
       @RequestBody EmailDetails emailDetails) {
     try {
       return buildSuccessResponse("Sent email success!", emailService.sendSimpleMail(emailDetails));

@@ -88,12 +88,7 @@ public class PermissionController extends BaseController {
   @DeleteMapping("/delete/{name}")
   public ResponseEntity<ApiResponse<Void>> deletePermissionByName(@PathVariable String name) {
     permissionService.deletePermissionByName(name);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT)
-        .body(
-            ApiResponse.<Void>builder()
-                .status(1)
-                .message("<Delete Permission Successfully>")
-                .build());
+    return buildSuccessNoContentResponse("<Delete Permission Successfully>", null);
   }
 
   @Operation(summary = "Search permissions by keyword")

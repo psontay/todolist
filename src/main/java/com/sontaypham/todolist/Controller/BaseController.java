@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 public abstract class BaseController {
   protected <T> ResponseEntity<ApiResponse<T>> buildSuccessResponse(String message, T data) {
     return ResponseEntity.ok(
-        ApiResponse.<T>builder().status(1).message(message).data(data).build());
+            ApiResponse.<T>builder().status(1).message(message).data(data).build());
   }
 
   protected <T> ResponseEntity<ApiResponse<T>> buildErrorResponse(String message, T data) {

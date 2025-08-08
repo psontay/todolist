@@ -1,7 +1,7 @@
 package com.sontaypham.todolist.Configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sontaypham.todolist.DTO.Response.ApiResponse;
+import com.sontaypham.todolist.DTO.Response.buildSuccessResponse;
 import com.sontaypham.todolist.Exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,8 +20,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
     response.setStatus(errorCode.getHttpStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    ApiResponse<?> apiResponse =
-        ApiResponse.builder().status(errorCode.getCode()).message(errorCode.getMessage()).build();
+    buildSuccessResponse<?> apiResponse =
+        buildSuccessResponse.builder().status(errorCode.getCode()).message(errorCode.getMessage()).build();
     ObjectMapper objectMapper = new ObjectMapper();
     response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
     response.flushBuffer();
