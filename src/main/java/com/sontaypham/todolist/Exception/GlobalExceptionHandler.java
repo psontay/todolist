@@ -1,6 +1,6 @@
 package com.sontaypham.todolist.Exception;
 
-import com.sontaypham.todolist.DTO.Response.ApiResponse;
+import com.sontaypham.todolist.DTO.Response.buildSuccessResponse;
 import jakarta.validation.ConstraintViolation;
 import java.util.Map;
 import java.util.Objects;
@@ -17,28 +17,28 @@ public class GlobalExceptionHandler {
   private static final String MIN_ATTRIBUTE = "min", MAIL_TYPE = "mail";
 
   @ExceptionHandler(value = RuntimeException.class)
-  public ResponseEntity<ApiResponse<Void>> handlingRuntimeException() {
+  public ResponseEntity<buildSuccessResponse<Void>> handlingRuntimeException() {
     return ResponseEntity.badRequest()
         .body(
-            ApiResponse.<Void>builder()
-                .status(ErrorCode.UNCATEGORIZED.getCode())
-                .message(ErrorCode.UNCATEGORIZED.getMessage())
-                .build());
+                buildSuccessResponse.<Void>builder()
+                                    .status(ErrorCode.UNCATEGORIZED.getCode())
+                                    .message(ErrorCode.UNCATEGORIZED.getMessage())
+                                    .build());
   }
 
   @ExceptionHandler(value = ApiException.class)
-  public ResponseEntity<ApiResponse<Void>> handlingApiException(ApiException e) {
+  public ResponseEntity<buildSuccessResponse<Void>> handlingApiException(ApiException e) {
     ErrorCode errorCode = e.getErrorCode();
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-            ApiResponse.<Void>builder()
-                .status(errorCode.getCode())
-                .message(errorCode.getMessage())
-                .build());
+                buildSuccessResponse.<Void>builder()
+                                    .status(errorCode.getCode())
+                                    .message(errorCode.getMessage())
+                                    .build());
   }
 
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
-  public ResponseEntity<ApiResponse<Map<String, String>>> handleValidation(
+  public ResponseEntity<buildSuccessResponse<Map<String, String>>> handleValidation(
       MethodArgumentNotValidException ex) {
     String enumKey = "INVALID_KEY";
     for (var err : ex.getBindingResult().getAllErrors()) {
@@ -62,24 +62,24 @@ public class GlobalExceptionHandler {
     }
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-            ApiResponse.<Map<String, String>>builder()
-                .status(errorCode.getCode())
-                .message(
+                buildSuccessResponse.<Map<String, String>>builder()
+                                    .status(errorCode.getCode())
+                                    .message(
                     Objects.nonNull(attributes)
                         ? mapAttributes(errorCode.getMessage(), attributes)
                         : errorCode.getMessage())
-                .build());
+                                    .build());
   }
 
   @ExceptionHandler(value = AccessDeniedException.class)
-  public ResponseEntity<ApiResponse<Void>> handlingAccessDeniedException() {
+  public ResponseEntity<buildSuccessResponse<Void>> handlingAccessDeniedException() {
     ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-            ApiResponse.<Void>builder()
-                .status(errorCode.getCode())
-                .message(errorCode.getMessage())
-                .build());
+                buildSuccessResponse.<Void>builder()
+                                    .status(errorCode.getCode())
+                                    .message(errorCode.getMessage())
+                                    .build());
   }
 
   private String mapAttributes(String message, Map<String, Object> attributes) {
