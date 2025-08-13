@@ -3,11 +3,11 @@ package com.sontaypham.todolist.integration.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.sontaypham.todolist.Entities.User;
-import com.sontaypham.todolist.Exception.ApiException;
-import com.sontaypham.todolist.Exception.ErrorCode;
-import com.sontaypham.todolist.Repository.UserRepository;
-import com.sontaypham.todolist.Service.CurrentUserService;
+import com.sontaypham.todolist.entities.User;
+import com.sontaypham.todolist.exception.ApiException;
+import com.sontaypham.todolist.exception.ErrorCode;
+import com.sontaypham.todolist.repository.UserRepository;
+import com.sontaypham.todolist.service.CurrentUserService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
