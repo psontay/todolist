@@ -14,21 +14,23 @@ import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.TaskMapper;
 import com.sontaypham.todolist.repository.TaskRepository;
-import com.sontaypham.todolist.service.CurrentUserService;
-import com.sontaypham.todolist.service.TaskService;
+import com.sontaypham.todolist.service.impl.CurrentUserServiceImpl;
+import com.sontaypham.todolist.service.impl.TaskServiceImpl;
 import java.time.LocalDateTime;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-class TaskServiceIT {
+class TaskServiceImplIT {
 
-  @InjectMocks TaskService taskService;
+  @InjectMocks
+  TaskServiceImpl taskServiceImpl;
 
   @Mock TaskRepository taskRepository;
   @Mock TaskMapper taskMapper;
-  @Mock CurrentUserService currentUserService;
+  @Mock
+  CurrentUserServiceImpl currentUserServiceImpl;
 
   @Mock TaskResponse taskResponse;
 
@@ -55,11 +57,11 @@ class TaskServiceIT {
     TaskCreationRequest request = new TaskCreationRequest();
     request.setTitle("New Task");
 
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTask(request)).thenReturn(mockTask);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    TaskResponse response = taskService.create(request);
+    TaskResponse response = taskServiceImpl.create(request);
 
     assertNotNull(response);
     verify(taskRepository).save(mockTask);
@@ -68,28 +70,28 @@ class TaskServiceIT {
 
   @Test
   void getAllTasksOfCurrentUser_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    List<TaskResponse> result = taskService.getAllTasksOfCurrentUser();
+    List<TaskResponse> result = taskServiceImpl.getAllTasksOfCurrentUser();
     assertEquals(1, result.size());
   }
 
   @Test
   void getTaskById_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    TaskResponse result = taskService.getTaskById("task1");
+    TaskResponse result = taskServiceImpl.getTaskById("task1");
     assertNotNull(result);
   }
 
   @Test
   void getTaskById_notFound_throwsException() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     mockUser.getTasks().clear();
 
-    ApiException ex = assertThrows(ApiException.class, () -> taskService.getTaskById("invalid"));
+    ApiException ex = assertThrows(ApiException.class, () -> taskServiceImpl.getTaskById("invalid"));
     assertEquals(ErrorCode.TASK_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -98,10 +100,10 @@ class TaskServiceIT {
     TaskUpdateRequest request =
         TaskUpdateRequest.builder().title("Updated").status(TaskStatus.COMPLETED).build();
 
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    TaskResponse result = taskService.updateTask("task1", request);
+    TaskResponse result = taskServiceImpl.updateTask("task1", request);
 
     assertEquals("Updated", mockTask.getTitle());
     assertEquals(TaskStatus.COMPLETED, mockTask.getStatus());
@@ -110,20 +112,20 @@ class TaskServiceIT {
 
   @Test
   void updateTask_notFound_throwsException() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     mockUser.getTasks().clear();
 
     ApiException ex =
         assertThrows(
-            ApiException.class, () -> taskService.updateTask("invalid", new TaskUpdateRequest()));
+            ApiException.class, () -> taskServiceImpl.updateTask("invalid", new TaskUpdateRequest()));
     assertEquals(ErrorCode.TASK_NOT_FOUND, ex.getErrorCode());
   }
 
   @Test
   void deleteTask_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
 
-    taskService.deleteTask("task1");
+    taskServiceImpl.deleteTask("task1");
 
     assertFalse(mockUser.getTasks().contains(mockTask));
     verify(taskRepository).delete(mockTask);
@@ -131,44 +133,44 @@ class TaskServiceIT {
 
   @Test
   void deleteTask_notFound_throwsException() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     mockUser.getTasks().clear();
 
-    ApiException ex = assertThrows(ApiException.class, () -> taskService.deleteTask("invalid"));
+    ApiException ex = assertThrows(ApiException.class, () -> taskServiceImpl.deleteTask("invalid"));
     assertEquals(ErrorCode.TASK_NOT_FOUND, ex.getErrorCode());
   }
 
   @Test
   void getTasksByStatus_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    List<TaskResponse> result = taskService.getTasksByStatus(TaskStatus.PENDING);
+    List<TaskResponse> result = taskServiceImpl.getTasksByStatus(TaskStatus.PENDING);
     assertEquals(1, result.size());
   }
 
   @Test
   void searchTasks_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
 
-    List<TaskResponse> result = taskService.searchTasks("task");
+    List<TaskResponse> result = taskServiceImpl.searchTasks("task");
     assertEquals(1, result.size());
   }
 
   @Test
   void searchTasks_noMatch_returnsEmpty() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
 
-    List<TaskResponse> result = taskService.searchTasks("unmatch");
+    List<TaskResponse> result = taskServiceImpl.searchTasks("unmatch");
     assertEquals(0, result.size());
   }
 
   @Test
   void getStatistics_success() {
-    when(currentUserService.getCurrentUser()).thenReturn(mockUser);
+    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
 
-    TaskStatisticsResponse result = taskService.getStatistics();
+    TaskStatisticsResponse result = taskServiceImpl.getStatistics();
     assertEquals(1, result.getTotal());
     assertEquals(1, result.getPending());
     assertEquals(0, result.getCompleted());

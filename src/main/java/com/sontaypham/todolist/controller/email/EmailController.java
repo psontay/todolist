@@ -1,9 +1,11 @@
-package com.sontaypham.todolist.controller;
+package com.sontaypham.todolist.controller.email;
 
+import com.sontaypham.todolist.controller.BaseController;
 import com.sontaypham.todolist.dto.response.ApiResponse;
 import com.sontaypham.todolist.dto.response.EmailResponse;
 import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.service.EmailService;
+import com.sontaypham.todolist.service.impl.EmailServiceImpl;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class EmailController extends BaseController {
   EmailService emailService;
 
-  public EmailController(EmailService emailService) {
+  public EmailController(EmailServiceImpl emailService) {
     this.emailService = emailService;
   }
 

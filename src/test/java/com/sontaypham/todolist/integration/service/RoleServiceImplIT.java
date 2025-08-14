@@ -12,15 +12,16 @@ import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.RoleMapper;
 import com.sontaypham.todolist.repository.PermissionRepository;
 import com.sontaypham.todolist.repository.RoleRepository;
-import com.sontaypham.todolist.service.RoleService;
+import com.sontaypham.todolist.service.impl.RoleServiceImpl;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 
-class RoleServiceIT {
+class RoleServiceImplIT {
 
-  @InjectMocks RoleService roleService;
+  @InjectMocks
+  RoleServiceImpl roleServiceImpl;
   @Mock RoleRepository roleRepository;
   @Mock PermissionRepository permissionRepository;
   @Mock RoleMapper roleMapper;
@@ -66,7 +67,7 @@ class RoleServiceIT {
     when(roleRepository.save(role)).thenReturn(role);
     when(roleMapper.toRoleResponse(role)).thenReturn(roleResponse);
 
-    RoleResponse result = roleService.create(roleRequest);
+    RoleResponse result = roleServiceImpl.create(roleRequest);
 
     assertEquals("ADMIN", result.getName());
     verify(roleRepository).save(role);
@@ -76,7 +77,7 @@ class RoleServiceIT {
   void createRole_alreadyExists_throwsException() {
     when(roleRepository.existsByName("ADMIN")).thenReturn(true);
 
-    ApiException ex = assertThrows(ApiException.class, () -> roleService.create(roleRequest));
+    ApiException ex = assertThrows(ApiException.class, () -> roleServiceImpl.create(roleRequest));
     assertEquals(ErrorCode.ROLE_ALREADY_EXISTS, ex.getErrorCode());
   }
 
@@ -85,7 +86,7 @@ class RoleServiceIT {
     when(roleRepository.existsByName("ADMIN")).thenReturn(false);
     when(permissionRepository.findAllByNameIn(anySet())).thenReturn(Collections.emptyList());
 
-    ApiException ex = assertThrows(ApiException.class, () -> roleService.create(roleRequest));
+    ApiException ex = assertThrows(ApiException.class, () -> roleServiceImpl.create(roleRequest));
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -94,7 +95,7 @@ class RoleServiceIT {
     when(roleRepository.findAll()).thenReturn(List.of(role));
     when(roleMapper.toRoleResponse(any())).thenReturn(roleResponse);
 
-    List<RoleResponse> result = roleService.getAll();
+    List<RoleResponse> result = roleServiceImpl.getAll();
 
     assertEquals(1, result.size());
     verify(roleRepository).findAll();
@@ -105,7 +106,7 @@ class RoleServiceIT {
     when(roleRepository.findByName("ADMIN")).thenReturn(Optional.of(role));
     when(roleMapper.toRoleResponse(role)).thenReturn(roleResponse);
 
-    RoleResponse result = roleService.findByName("ADMIN");
+    RoleResponse result = roleServiceImpl.findByName("ADMIN");
 
     assertEquals("ADMIN", result.getName());
   }
@@ -114,14 +115,14 @@ class RoleServiceIT {
   void findByName_notFound_throwsException() {
     when(roleRepository.findByName("ADMIN")).thenReturn(Optional.empty());
 
-    ApiException ex = assertThrows(ApiException.class, () -> roleService.findByName("ADMIN"));
+    ApiException ex = assertThrows(ApiException.class, () -> roleServiceImpl.findByName("ADMIN"));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, ex.getErrorCode());
   }
 
   @Test
   void existsByName_true() {
     when(roleRepository.existsByName("ADMIN")).thenReturn(true);
-    assertTrue(roleService.existsByName("ADMIN"));
+    assertTrue(roleServiceImpl.existsByName("ADMIN"));
   }
 
   @Test
@@ -129,7 +130,7 @@ class RoleServiceIT {
     when(roleRepository.findByDescription("Administrator")).thenReturn(Optional.of(role));
     when(roleMapper.toRoleResponse(role)).thenReturn(roleResponse);
 
-    RoleResponse result = roleService.findByDescription("Administrator");
+    RoleResponse result = roleServiceImpl.findByDescription("Administrator");
 
     assertEquals("ADMIN", result.getName());
   }
@@ -139,7 +140,7 @@ class RoleServiceIT {
     when(roleRepository.findByDescription("Administrator")).thenReturn(Optional.empty());
 
     ApiException ex =
-        assertThrows(ApiException.class, () -> roleService.findByDescription("Administrator"));
+        assertThrows(ApiException.class, () -> roleServiceImpl.findByDescription("Administrator"));
 
     assertEquals(ErrorCode.ROLE_NOT_FOUND, ex.getErrorCode());
   }
@@ -149,14 +150,14 @@ class RoleServiceIT {
     when(roleRepository.existsByName("ADMIN")).thenReturn(true);
     doNothing().when(roleRepository).deleteByName("ADMIN");
 
-    assertDoesNotThrow(() -> roleService.deleteByName("ADMIN"));
+    assertDoesNotThrow(() -> roleServiceImpl.deleteByName("ADMIN"));
   }
 
   @Test
   void deleteByName_notFound_throwsException() {
     when(roleRepository.existsByName("ADMIN")).thenReturn(false);
 
-    ApiException ex = assertThrows(ApiException.class, () -> roleService.deleteByName("ADMIN"));
+    ApiException ex = assertThrows(ApiException.class, () -> roleServiceImpl.deleteByName("ADMIN"));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -165,7 +166,7 @@ class RoleServiceIT {
     when(roleRepository.findAllByNameContainingIgnoreCase("adm")).thenReturn(List.of(role));
     when(roleMapper.toRoleResponse(any())).thenReturn(roleResponse);
 
-    List<RoleResponse> results = roleService.findAllByNameIgnoreCase("adm");
+    List<RoleResponse> results = roleServiceImpl.findAllByNameIgnoreCase("adm");
 
     assertEquals(1, results.size());
   }
@@ -177,7 +178,7 @@ class RoleServiceIT {
     when(roleRepository.save(role)).thenReturn(role);
     when(roleMapper.toRoleResponse(role)).thenReturn(roleResponse);
 
-    RoleResponse result = roleService.updateFromRequest(roleRequest);
+    RoleResponse result = roleServiceImpl.updateFromRequest(roleRequest);
     assertEquals("ADMIN", result.getName());
   }
 
@@ -186,7 +187,7 @@ class RoleServiceIT {
     when(roleRepository.findByName("ADMIN")).thenReturn(Optional.empty());
 
     ApiException ex =
-        assertThrows(ApiException.class, () -> roleService.updateFromRequest(roleRequest));
+        assertThrows(ApiException.class, () -> roleServiceImpl.updateFromRequest(roleRequest));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -200,7 +201,7 @@ class RoleServiceIT {
     when(roleRepository.save(role)).thenReturn(role);
     when(roleMapper.toRoleResponse(role)).thenReturn(roleResponse);
 
-    RoleResponse result = roleService.addPermissionsToRole("ADMIN", permissionNames);
+    RoleResponse result = roleServiceImpl.addPermissionsToRole("ADMIN", permissionNames);
     assertEquals("ADMIN", result.getName());
   }
 
@@ -212,7 +213,7 @@ class RoleServiceIT {
 
     ApiException ex =
         assertThrows(
-            ApiException.class, () -> roleService.addPermissionsToRole("ADMIN", permissionNames));
+            ApiException.class, () -> roleServiceImpl.addPermissionsToRole("ADMIN", permissionNames));
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -223,7 +224,7 @@ class RoleServiceIT {
     ApiException ex =
         assertThrows(
             ApiException.class,
-            () -> roleService.addPermissionsToRole("ADMIN", List.of("CREATE_TASK")));
+            () -> roleServiceImpl.addPermissionsToRole("ADMIN", List.of("CREATE_TASK")));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, ex.getErrorCode());
   }
 }

@@ -23,7 +23,7 @@ import com.sontaypham.todolist.mapper.UserMapper;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.repository.UserRepository;
-import com.sontaypham.todolist.service.UserService;
+import com.sontaypham.todolist.service.impl.UserServiceImpl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,8 +48,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @EnableMethodSecurity
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserServiceIT {
-  @Autowired UserService userService;
+public class UserServiceImplIT {
+  @Autowired
+  UserServiceImpl userServiceImpl;
   @Autowired MockMvc mockMvc;
   @MockBean UserRepository userRepository;
   @MockBean UserMapper userMapper;
@@ -127,7 +128,7 @@ public class UserServiceIT {
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
 
     // when
-    UserResponse result = userService.create(userCreationRequest);
+    UserResponse result = userServiceImpl.create(userCreationRequest);
 
     // then
     assertNotNull(result);
@@ -148,7 +149,7 @@ public class UserServiceIT {
     when(userRepository.save(any(User.class)))
         .thenThrow(new DataIntegrityViolationException("duplicate key"));
     ApiException exception =
-        assertThrows(ApiException.class, () -> userService.create(userCreationRequest));
+        assertThrows(ApiException.class, () -> userServiceImpl.create(userCreationRequest));
     assertEquals("Username already exists", exception.getMessage());
   }
 
@@ -159,7 +160,7 @@ public class UserServiceIT {
     when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.empty());
 
     ApiException exception =
-        assertThrows(ApiException.class, () -> userService.create(userCreationRequest));
+        assertThrows(ApiException.class, () -> userServiceImpl.create(userCreationRequest));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -168,7 +169,7 @@ public class UserServiceIT {
   void getAllUsers_success() {
     when(userRepository.findAll()).thenReturn(List.of(user));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
-    List<UserResponse> ans = userService.getAllUsers();
+    List<UserResponse> ans = userServiceImpl.getAllUsers();
     assertEquals(1, ans.size());
     assertEquals(userResponse.getEmail(), ans.getFirst().getEmail());
     verify(userRepository).findAll();
@@ -180,7 +181,7 @@ public class UserServiceIT {
   void getUserById_success() {
     when(userRepository.findById("sontaypham")).thenReturn(Optional.of(user));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
-    UserResponse result = userService.getUserById("sontaypham");
+    UserResponse result = userServiceImpl.getUserById("sontaypham");
     assertEquals(userResponse.getEmail(), result.getEmail());
     verify(userRepository).findById("sontaypham");
   }
@@ -189,7 +190,7 @@ public class UserServiceIT {
   @WithMockUser(roles = "ADMIN")
   void getUserById_userNotFound_throwsException() {
     when(userRepository.findById("unk")).thenReturn(Optional.empty());
-    ApiException exception = assertThrows(ApiException.class, () -> userService.getUserById("unk"));
+    ApiException exception = assertThrows(ApiException.class, () -> userServiceImpl.getUserById("unk"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -198,7 +199,7 @@ public class UserServiceIT {
   void getUserByEmail_success() {
     when(userRepository.findByEmail("user@test@gmail.com")).thenReturn(Optional.of(user));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
-    UserResponse result = userService.getUserByEmail("user@test@gmail.com");
+    UserResponse result = userServiceImpl.getUserByEmail("user@test@gmail.com");
     assertEquals(userResponse.getEmail(), result.getEmail());
     verify(userRepository).findByEmail("user@test@gmail.com");
   }
@@ -208,7 +209,7 @@ public class UserServiceIT {
   void getUserByEmail_userNotFound_throwsException() {
     when(userRepository.findByEmail("user@unk@gmail.com")).thenReturn(Optional.empty());
     ApiException exception =
-        assertThrows(ApiException.class, () -> userService.getUserByEmail("user@unk@gmail.com"));
+        assertThrows(ApiException.class, () -> userServiceImpl.getUserByEmail("user@unk@gmail.com"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -220,7 +221,7 @@ public class UserServiceIT {
     when(taskRepository.findById("task1")).thenReturn(Optional.of(existingTask));
     when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.of(userRole));
     when(roleRepository.findByName(RoleName.ADMIN.name())).thenReturn(Optional.of(adminRole));
-    userService.updateUser("sontaypham", userUpdateRequest);
+    userServiceImpl.updateUser("sontaypham", userUpdateRequest);
     assertEquals("TestUpdate", user.getName());
     assertEquals("user@update@gmail.com", user.getEmail());
     assertEquals("encodedPassword", user.getPassword());
@@ -240,7 +241,7 @@ public class UserServiceIT {
     when(userRepository.findById("unk")).thenReturn(Optional.empty());
     when(passwordEncoder.encode("irrelevant")).thenReturn("encodedPassword");
     ApiException exception =
-        assertThrows(ApiException.class, () -> userService.updateUser("unk", userUpdateRequest));
+        assertThrows(ApiException.class, () -> userServiceImpl.updateUser("unk", userUpdateRequest));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -252,7 +253,7 @@ public class UserServiceIT {
     when(taskRepository.findById("unk")).thenReturn(Optional.empty());
     ApiException exception =
         assertThrows(
-            ApiException.class, () -> userService.updateUser("sontaypham", userUpdateRequest));
+            ApiException.class, () -> userServiceImpl.updateUser("sontaypham", userUpdateRequest));
     assertEquals(ErrorCode.TASK_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -265,7 +266,7 @@ public class UserServiceIT {
     when(roleRepository.findByName(RoleName.ADMIN.name())).thenReturn(Optional.empty());
     ApiException exception =
         assertThrows(
-            ApiException.class, () -> userService.updateUser("sontaypham", userUpdateRequest));
+            ApiException.class, () -> userServiceImpl.updateUser("sontaypham", userUpdateRequest));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -273,7 +274,7 @@ public class UserServiceIT {
   @WithMockUser(roles = "ADMIN")
   void deleteUser_success() {
     when(userRepository.findById("sontaypham")).thenReturn(Optional.of(user));
-    userService.deleteUser("sontaypham");
+    userServiceImpl.deleteUser("sontaypham");
     assertEquals(0, userRepository.findAll().size());
     verify(userRepository).deleteById("sontaypham");
   }
@@ -283,7 +284,7 @@ public class UserServiceIT {
   void deleteUser_userNotFound_throwsException() {
     when(userRepository.findById("sontaypham")).thenReturn(Optional.empty());
     ApiException exception =
-        assertThrows(ApiException.class, () -> userService.deleteUser("sontaypham"));
+        assertThrows(ApiException.class, () -> userServiceImpl.deleteUser("sontaypham"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -294,7 +295,7 @@ public class UserServiceIT {
     when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.of(userRole));
     when(roleRepository.findByName(RoleName.ADMIN.name())).thenReturn(Optional.of(adminRole));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
-    UserResponse ans = userService.assignRoleToUser("sontaypham", RoleName.ADMIN.name());
+    UserResponse ans = userServiceImpl.assignRoleToUser("sontaypham", RoleName.ADMIN.name());
     assertEquals(2, ans.getRoles().size());
     verify(userRepository).findById("sontaypham");
   }
@@ -306,7 +307,7 @@ public class UserServiceIT {
     ApiException apiException =
         assertThrows(
             ApiException.class,
-            () -> userService.assignRoleToUser("sontaypham", RoleName.USER.name()));
+            () -> userServiceImpl.assignRoleToUser("sontaypham", RoleName.USER.name()));
     assertEquals(ErrorCode.USER_NOT_FOUND, apiException.getErrorCode());
   }
 
@@ -318,7 +319,7 @@ public class UserServiceIT {
     ApiException exception =
         assertThrows(
             ApiException.class,
-            () -> userService.assignRoleToUser("sontaypham", RoleName.USER.name()));
+            () -> userServiceImpl.assignRoleToUser("sontaypham", RoleName.USER.name()));
     assertEquals(ErrorCode.ROLE_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -336,7 +337,7 @@ public class UserServiceIT {
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
 
     // when
-    UserResponse ans = userService.updateUserPassword("sontaypham", oldPassword, newPassword);
+    UserResponse ans = userServiceImpl.updateUserPassword("sontaypham", oldPassword, newPassword);
 
     // then
     assertNotNull(ans);
@@ -357,7 +358,7 @@ public class UserServiceIT {
     ApiException exception =
         assertThrows(
             ApiException.class,
-            () -> userService.updateUserPassword("sontaypham", oldPassword, newPassword));
+            () -> userServiceImpl.updateUserPassword("sontaypham", oldPassword, newPassword));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -371,7 +372,7 @@ public class UserServiceIT {
     ApiException exception =
         assertThrows(
             ApiException.class,
-            () -> userService.updateUserPassword("sontaypham", oldPassword, newPassword));
+            () -> userServiceImpl.updateUserPassword("sontaypham", oldPassword, newPassword));
     assertEquals(ErrorCode.PASSWORD_NOT_MATCHES, exception.getErrorCode());
   }
 
@@ -380,7 +381,7 @@ public class UserServiceIT {
   void searchUsers_success() {
     when(userRepository.findByKeyword("sontaypham")).thenReturn(List.of(user));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
-    List<UserResponse> ans = userService.searchUsers("sontaypham");
+    List<UserResponse> ans = userServiceImpl.searchUsers("sontaypham");
     assertEquals(1, ans.size());
     assertEquals(userResponse.getEmail(), ans.getFirst().getEmail());
     verify(userRepository).findByKeyword("sontaypham");

@@ -7,7 +7,7 @@ import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.repository.UserRepository;
-import com.sontaypham.todolist.service.CurrentUserService;
+import com.sontaypham.todolist.service.impl.CurrentUserServiceImpl;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,11 +17,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-class CurrentUserServiceTest {
+class CurrentUserServiceImplImplTest {
 
   @Mock private UserRepository userRepository;
 
-  @InjectMocks private CurrentUserService currentUserService;
+  @InjectMocks private CurrentUserServiceImpl currentUserServiceImpl;
 
   private User user;
 
@@ -47,7 +47,7 @@ class CurrentUserServiceTest {
     when(userRepository.findByName("testuser")).thenReturn(Optional.of(user));
 
     // when
-    User result = currentUserService.getCurrentUser();
+    User result = currentUserServiceImpl.getCurrentUser();
 
     // then
     assertNotNull(result);
@@ -62,7 +62,7 @@ class CurrentUserServiceTest {
 
     // when & then
     ApiException exception =
-        assertThrows(ApiException.class, () -> currentUserService.getCurrentUser());
+        assertThrows(ApiException.class, () -> currentUserServiceImpl.getCurrentUser());
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
     verify(userRepository).findByName("testuser");
   }
