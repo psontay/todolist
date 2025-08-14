@@ -21,7 +21,7 @@ public class UserAccountController extends BaseController {
             @RequestParam String oldPassword,
             @RequestParam String newPassword) {
         return buildSuccessResponse("Password changed successfully",
-                              userService.updateUserPassword(id, oldPassword, newPassword));
+                                    userService.updateUserPassword(id, oldPassword, newPassword));
     }
 
     @GetMapping("/me")

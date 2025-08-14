@@ -19,7 +19,7 @@ import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.UserMapper;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.UserRepository;
-import com.sontaypham.todolist.service.UserService;
+import com.sontaypham.todolist.service.impl.UserServiceImpl;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -38,8 +38,9 @@ import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource("/test.properties")
-public class UserServiceUT {
-  @InjectMocks UserService userService;
+public class UserServiceImplUT {
+  @InjectMocks
+  UserServiceImpl userServiceImpl;
 
   @Mock UserMapper userMapper;
 
@@ -126,7 +127,7 @@ public class UserServiceUT {
         assertThrows(
             ApiException.class,
             () -> {
-              userService.getUserProfile();
+              userServiceImpl.getUserProfile();
             });
 
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());

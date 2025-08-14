@@ -1,9 +1,11 @@
-package com.sontaypham.todolist.controller;
+package com.sontaypham.todolist.controller.authentication;
 
 import com.nimbusds.jose.JOSEException;
+import com.sontaypham.todolist.controller.BaseController;
 import com.sontaypham.todolist.dto.request.*;
 import com.sontaypham.todolist.dto.response.*;
 import com.sontaypham.todolist.service.AuthenticationService;
+import com.sontaypham.todolist.service.impl.AuthenticationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.text.ParseException;
@@ -19,14 +21,14 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class AuthenticationController extends BaseController {
   private final AuthenticationService authenticationService;
-  public AuthenticationController(AuthenticationService authenticationService) {
+  public AuthenticationController(AuthenticationServiceImpl authenticationService) {
       this.authenticationService = authenticationService;
   }
   @Operation(summary = "Authenticate user and return JWT token")
   @PostMapping("/login")
   public ResponseEntity<ApiResponse<AuthenticationResponse>> login(@RequestBody AuthenticationRequest request) {
       log.info("Received request login user");
-      return buildSuccessResponse("Login Method" ,authenticationService.authenticate(request) );
+      return buildSuccessResponse("Login Method" , authenticationService.authenticate(request));
   }
 
   @Operation(summary = "Validate a JWT token and get introspection info")

@@ -10,7 +10,7 @@ import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.PermissionMapper;
 import com.sontaypham.todolist.repository.PermissionRepository;
-import com.sontaypham.todolist.service.PermissionService;
+import com.sontaypham.todolist.service.impl.PermissionServiceImpl;
 import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class PermissionServiceIT {
+class PermissionServiceImplIT {
 
   @Mock PermissionRepository permissionRepository;
 
   @Mock PermissionMapper permissionMapper;
 
-  @InjectMocks PermissionService permissionService;
+  @InjectMocks
+  PermissionServiceImpl permissionServiceImpl;
 
   Permission permission;
   PermissionRequest request;
@@ -45,7 +46,7 @@ class PermissionServiceIT {
     when(permissionRepository.save(permission)).thenReturn(permission);
     when(permissionMapper.toPermissionResponse(permission)).thenReturn(response);
 
-    PermissionResponse result = permissionService.createPermission(request);
+    PermissionResponse result = permissionServiceImpl.createPermission(request);
 
     assertEquals("TASK_VIEW", result.getName());
     verify(permissionRepository).save(permission);
@@ -59,7 +60,7 @@ class PermissionServiceIT {
         assertThrows(
             ApiException.class,
             () -> {
-              permissionService.createPermission(request);
+              permissionServiceImpl.createPermission(request);
             });
 
     assertEquals(ErrorCode.PERMISSION_ALREADY_EXISTS, exception.getErrorCode());
@@ -71,7 +72,7 @@ class PermissionServiceIT {
     when(permissionRepository.findAll()).thenReturn(permissions);
     when(permissionMapper.toPermissionResponse(permission)).thenReturn(response);
 
-    List<PermissionResponse> results = permissionService.getPermissions();
+    List<PermissionResponse> results = permissionServiceImpl.getPermissions();
 
     assertEquals(1, results.size());
     assertEquals("TASK_VIEW", results.getFirst().getName());
@@ -82,7 +83,7 @@ class PermissionServiceIT {
     when(permissionRepository.findByName("TASK_VIEW")).thenReturn(Optional.of(permission));
     when(permissionMapper.toPermissionResponse(permission)).thenReturn(response);
 
-    PermissionResponse result = permissionService.findByName("TASK_VIEW");
+    PermissionResponse result = permissionServiceImpl.findByName("TASK_VIEW");
 
     assertNotNull(result);
     assertEquals("TASK_VIEW", result.getName());
@@ -93,7 +94,7 @@ class PermissionServiceIT {
     when(permissionRepository.findByName("TASK_VIEW")).thenReturn(Optional.empty());
 
     ApiException exception =
-        assertThrows(ApiException.class, () -> permissionService.findByName("TASK_VIEW"));
+        assertThrows(ApiException.class, () -> permissionServiceImpl.findByName("TASK_VIEW"));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }
@@ -116,7 +117,7 @@ class PermissionServiceIT {
         .thenReturn(new PermissionResponse("TASK_VIEW", "Updated"));
 
     PermissionResponse result =
-        permissionService.updatePermissionByName("TASK_VIEW", updateRequest);
+        permissionServiceImpl.updatePermissionByName("TASK_VIEW", updateRequest);
 
     assertEquals("Updated", result.getDescription());
   }
@@ -127,7 +128,7 @@ class PermissionServiceIT {
 
     ApiException exception =
         assertThrows(
-            ApiException.class, () -> permissionService.updatePermissionByName("UNKNOWN", request));
+            ApiException.class, () -> permissionServiceImpl.updatePermissionByName("UNKNOWN", request));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }
@@ -136,7 +137,7 @@ class PermissionServiceIT {
   void deletePermissionByName_success() {
     when(permissionRepository.existsByName("TASK_VIEW")).thenReturn(true);
 
-    permissionService.deletePermissionByName("TASK_VIEW");
+    permissionServiceImpl.deletePermissionByName("TASK_VIEW");
 
     verify(permissionRepository).deletePermissionByName("TASK_VIEW");
   }
@@ -147,7 +148,7 @@ class PermissionServiceIT {
 
     ApiException exception =
         assertThrows(
-            ApiException.class, () -> permissionService.deletePermissionByName("TASK_VIEW"));
+            ApiException.class, () -> permissionServiceImpl.deletePermissionByName("TASK_VIEW"));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }
@@ -158,7 +159,7 @@ class PermissionServiceIT {
         .thenReturn(List.of(permission));
     when(permissionMapper.toPermissionResponse(permission)).thenReturn(response);
 
-    List<PermissionResponse> results = permissionService.searchByKeyword("TASK");
+    List<PermissionResponse> results = permissionServiceImpl.searchByKeyword("TASK");
 
     assertEquals(1, results.size());
     assertEquals("TASK_VIEW", results.getFirst().getName());
@@ -169,7 +170,7 @@ class PermissionServiceIT {
     when(permissionRepository.findByDescription("View tasks")).thenReturn(Optional.of(permission));
     when(permissionMapper.toPermissionResponse(permission)).thenReturn(response);
 
-    PermissionResponse result = permissionService.findByDescription("View tasks");
+    PermissionResponse result = permissionServiceImpl.findByDescription("View tasks");
 
     assertNotNull(result);
     assertEquals("TASK_VIEW", result.getName());
@@ -180,7 +181,7 @@ class PermissionServiceIT {
     when(permissionRepository.findByDescription("Unknown")).thenReturn(Optional.empty());
 
     ApiException exception =
-        assertThrows(ApiException.class, () -> permissionService.findByDescription("Unknown"));
+        assertThrows(ApiException.class, () -> permissionServiceImpl.findByDescription("Unknown"));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }
@@ -189,7 +190,7 @@ class PermissionServiceIT {
   void existsByName_true() {
     when(permissionRepository.existsByName("TASK_VIEW")).thenReturn(true);
 
-    boolean exists = permissionService.existsByName("TASK_VIEW");
+    boolean exists = permissionServiceImpl.existsByName("TASK_VIEW");
 
     assertTrue(exists);
   }
@@ -198,7 +199,7 @@ class PermissionServiceIT {
   void existsByName_false() {
     when(permissionRepository.existsByName("UNKNOWN")).thenReturn(false);
 
-    boolean exists = permissionService.existsByName("UNKNOWN");
+    boolean exists = permissionServiceImpl.existsByName("UNKNOWN");
 
     assertFalse(exists);
   }
