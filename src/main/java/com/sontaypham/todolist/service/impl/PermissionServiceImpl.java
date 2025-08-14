@@ -7,9 +7,8 @@ import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.PermissionMapper;
 import com.sontaypham.todolist.repository.PermissionRepository;
-import java.util.List;
-
 import com.sontaypham.todolist.service.PermissionService;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

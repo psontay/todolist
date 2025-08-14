@@ -24,8 +24,7 @@ class PermissionServiceImplIT {
 
   @Mock PermissionMapper permissionMapper;
 
-  @InjectMocks
-  PermissionServiceImpl permissionServiceImpl;
+  @InjectMocks PermissionServiceImpl permissionServiceImpl;
 
   Permission permission;
   PermissionRequest request;
@@ -128,7 +127,8 @@ class PermissionServiceImplIT {
 
     ApiException exception =
         assertThrows(
-            ApiException.class, () -> permissionServiceImpl.updatePermissionByName("UNKNOWN", request));
+            ApiException.class,
+            () -> permissionServiceImpl.updatePermissionByName("UNKNOWN", request));
 
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, exception.getErrorCode());
   }

@@ -20,8 +20,7 @@ import org.mockito.*;
 
 class RoleServiceImplIT {
 
-  @InjectMocks
-  RoleServiceImpl roleServiceImpl;
+  @InjectMocks RoleServiceImpl roleServiceImpl;
   @Mock RoleRepository roleRepository;
   @Mock PermissionRepository permissionRepository;
   @Mock RoleMapper roleMapper;
@@ -213,7 +212,8 @@ class RoleServiceImplIT {
 
     ApiException ex =
         assertThrows(
-            ApiException.class, () -> roleServiceImpl.addPermissionsToRole("ADMIN", permissionNames));
+            ApiException.class,
+            () -> roleServiceImpl.addPermissionsToRole("ADMIN", permissionNames));
     assertEquals(ErrorCode.PERMISSION_NOT_FOUND, ex.getErrorCode());
   }
 

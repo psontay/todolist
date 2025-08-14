@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserAccountController extends BaseController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @PutMapping("/{id}/password")
-    public ResponseEntity<ApiResponse<UserResponse>> updateUserPassword(
-            @PathVariable String id,
-            @RequestParam String oldPassword,
-            @RequestParam String newPassword) {
-        return buildSuccessResponse("Password changed successfully",
-                                    userService.updateUserPassword(id, oldPassword, newPassword));
-    }
+  @PutMapping("/{id}/password")
+  public ResponseEntity<ApiResponse<UserResponse>> updateUserPassword(
+      @PathVariable String id, @RequestParam String oldPassword, @RequestParam String newPassword) {
+    return buildSuccessResponse(
+        "Password changed successfully",
+        userService.updateUserPassword(id, oldPassword, newPassword));
+  }
 
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserProfile() {
-        return buildSuccessResponse("User profile", userService.getUserProfile());
-    }
+  @GetMapping("/me")
+  public ResponseEntity<ApiResponse<UserResponse>> getUserProfile() {
+    return buildSuccessResponse("User profile", userService.getUserProfile());
+  }
 }

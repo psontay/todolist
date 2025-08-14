@@ -24,13 +24,11 @@ import org.mockito.*;
 
 class TaskServiceImplIT {
 
-  @InjectMocks
-  TaskServiceImpl taskServiceImpl;
+  @InjectMocks TaskServiceImpl taskServiceImpl;
 
   @Mock TaskRepository taskRepository;
   @Mock TaskMapper taskMapper;
-  @Mock
-  CurrentUserServiceImpl currentUserServiceImpl;
+  @Mock CurrentUserServiceImpl currentUserServiceImpl;
 
   @Mock TaskResponse taskResponse;
 
@@ -91,7 +89,8 @@ class TaskServiceImplIT {
     when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
     mockUser.getTasks().clear();
 
-    ApiException ex = assertThrows(ApiException.class, () -> taskServiceImpl.getTaskById("invalid"));
+    ApiException ex =
+        assertThrows(ApiException.class, () -> taskServiceImpl.getTaskById("invalid"));
     assertEquals(ErrorCode.TASK_NOT_FOUND, ex.getErrorCode());
   }
 
@@ -117,7 +116,8 @@ class TaskServiceImplIT {
 
     ApiException ex =
         assertThrows(
-            ApiException.class, () -> taskServiceImpl.updateTask("invalid", new TaskUpdateRequest()));
+            ApiException.class,
+            () -> taskServiceImpl.updateTask("invalid", new TaskUpdateRequest()));
     assertEquals(ErrorCode.TASK_NOT_FOUND, ex.getErrorCode());
   }
 

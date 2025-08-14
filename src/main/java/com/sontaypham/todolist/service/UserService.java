@@ -3,29 +3,28 @@ package com.sontaypham.todolist.service;
 import com.sontaypham.todolist.dto.request.UserCreationRequest;
 import com.sontaypham.todolist.dto.request.UserUpdateRequest;
 import com.sontaypham.todolist.dto.response.UserResponse;
-
 import java.util.List;
 
 public interface UserService {
-    UserResponse create(UserCreationRequest request);
+  UserResponse create(UserCreationRequest request);
 
-    List<UserResponse> getAllUsers();
+  List<UserResponse> getAllUsers();
 
-    UserResponse getUserById(String id);
+  UserResponse getUserById(String id);
 
-    UserResponse getUserByEmail(String email);
+  UserResponse getUserByEmail(String email);
 
-    void updateUser(String id, UserUpdateRequest request);
+  void updateUser(String id, UserUpdateRequest request);
 
-    void deleteUser(String id);
+  void deleteUser(String id);
 
-    UserResponse assignRoleToUser(String id, String roleName);
+  UserResponse assignRoleToUser(String id, String roleName);
 
-    UserResponse updateUserPassword(String id, String oldPassword, String newPassword);
+  UserResponse updateUserPassword(String id, String oldPassword, String newPassword);
 
-    List<UserResponse> searchUsers(String keyword);
+  List<UserResponse> searchUsers(String keyword);
 
-    UserResponse getUserProfile();
+  UserResponse getUserProfile();
 
-    String getCurrentUserId();
+  String getCurrentUserId();
 }
