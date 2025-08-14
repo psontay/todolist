@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserRoleController extends BaseController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> assignRoleToUser(@PathVariable String id, @RequestParam String roleName) {
-        return buildSuccessResponse("Role assigned successfully", userService.assignRoleToUser(id, roleName));
-    }
+  @PostMapping
+  public ResponseEntity<ApiResponse<UserResponse>> assignRoleToUser(
+      @PathVariable String id, @RequestParam String roleName) {
+    return buildSuccessResponse(
+        "Role assigned successfully", userService.assignRoleToUser(id, roleName));
+  }
 }

@@ -7,11 +7,10 @@ import com.sontaypham.todolist.entities.Role;
 import com.sontaypham.todolist.exception.*;
 import com.sontaypham.todolist.mapper.*;
 import com.sontaypham.todolist.repository.*;
+import com.sontaypham.todolist.service.RoleService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.sontaypham.todolist.service.RoleService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

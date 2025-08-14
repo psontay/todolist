@@ -2,13 +2,9 @@ package com.sontaypham.todolist.service.impl;
 
 import com.sontaypham.todolist.dto.response.EmailResponse;
 import com.sontaypham.todolist.entities.EmailDetails;
-import com.sontaypham.todolist.repository.EmailRepository;
 import com.sontaypham.todolist.service.EmailService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
   @Value("${spring.mail.username}")
   String from;
+
   private final JavaMailSender mailSender;
 
   @Override

@@ -4,11 +4,12 @@ import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.enums.TaskStatus;
-import com.sontaypham.todolist.repository.EmailRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TaskStatisticsWeekly {
   TaskRepository taskRepository;
-  EmailRepository emailRepository;
+  EmailService emailService;
 
   @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
   public void taskStatistics() {
@@ -45,7 +46,7 @@ public class TaskStatisticsWeekly {
                 - Pending: %d
                 """
               .formatted(total, completed, pending);
-      emailRepository.sendSimpleMail(
+      emailService.sendSimpleMail(
           EmailDetails.builder()
               .subject("\uD83D\uDCCA Your Weekly Task Summary")
               .to(user.getEmail())

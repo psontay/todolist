@@ -6,9 +6,9 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.sontaypham.todolist.dto.request.AuthenticationRequest;
-import com.sontaypham.todolist.dto.request.RefreshTokenRequest;
 import com.sontaypham.todolist.dto.request.IntrospectRequest;
 import com.sontaypham.todolist.dto.request.LogoutRequest;
+import com.sontaypham.todolist.dto.request.RefreshTokenRequest;
 import com.sontaypham.todolist.dto.request.ResetPasswordRequest;
 import com.sontaypham.todolist.dto.response.AuthenticationResponse;
 import com.sontaypham.todolist.dto.response.IntrospectResponse;
@@ -17,22 +17,21 @@ import com.sontaypham.todolist.dto.response.ResetPasswordResponse;
 import com.sontaypham.todolist.entities.*;
 import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
-import com.sontaypham.todolist.repository.EmailRepository;
 import com.sontaypham.todolist.repository.InvalidatedTokenRepository;
 import com.sontaypham.todolist.repository.UserRepository;
+import com.sontaypham.todolist.service.AuthenticationService;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-import com.sontaypham.todolist.service.AuthenticationService;
+import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,10 +43,10 @@ import org.springframework.util.CollectionUtils;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
-   UserRepository userRepository;
-   InvalidatedTokenRepository invalidatedTokenRepository;
-   EmailRepository emailRepository;
-   PasswordEncoder passwordEncoder;
+  UserRepository userRepository;
+  InvalidatedTokenRepository invalidatedTokenRepository;
+  EmailService emailService;
+  PasswordEncoder passwordEncoder;
   private static final SecureRandom RANDOM = new SecureRandom();
   private static final String CHARACTERS =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -201,7 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String newPassword = generateRandomString(12);
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
-    emailRepository.sendSimpleMail(
+    emailService.sendSimpleMail(
         EmailDetails.builder()
             .to(user.getEmail())
             .messageBody("Your new password : " + newPassword)

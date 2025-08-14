@@ -39,8 +39,7 @@ import org.springframework.test.context.TestPropertySource;
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource("/test.properties")
 public class UserServiceImplUT {
-  @InjectMocks
-  UserServiceImpl userServiceImpl;
+  @InjectMocks UserServiceImpl userServiceImpl;
 
   @Mock UserMapper userMapper;
 

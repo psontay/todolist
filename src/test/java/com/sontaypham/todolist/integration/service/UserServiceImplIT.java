@@ -49,8 +49,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @EnableMethodSecurity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserServiceImplIT {
-  @Autowired
-  UserServiceImpl userServiceImpl;
+  @Autowired UserServiceImpl userServiceImpl;
   @Autowired MockMvc mockMvc;
   @MockBean UserRepository userRepository;
   @MockBean UserMapper userMapper;
@@ -190,7 +189,8 @@ public class UserServiceImplIT {
   @WithMockUser(roles = "ADMIN")
   void getUserById_userNotFound_throwsException() {
     when(userRepository.findById("unk")).thenReturn(Optional.empty());
-    ApiException exception = assertThrows(ApiException.class, () -> userServiceImpl.getUserById("unk"));
+    ApiException exception =
+        assertThrows(ApiException.class, () -> userServiceImpl.getUserById("unk"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -209,7 +209,8 @@ public class UserServiceImplIT {
   void getUserByEmail_userNotFound_throwsException() {
     when(userRepository.findByEmail("user@unk@gmail.com")).thenReturn(Optional.empty());
     ApiException exception =
-        assertThrows(ApiException.class, () -> userServiceImpl.getUserByEmail("user@unk@gmail.com"));
+        assertThrows(
+            ApiException.class, () -> userServiceImpl.getUserByEmail("user@unk@gmail.com"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -241,7 +242,8 @@ public class UserServiceImplIT {
     when(userRepository.findById("unk")).thenReturn(Optional.empty());
     when(passwordEncoder.encode("irrelevant")).thenReturn("encodedPassword");
     ApiException exception =
-        assertThrows(ApiException.class, () -> userServiceImpl.updateUser("unk", userUpdateRequest));
+        assertThrows(
+            ApiException.class, () -> userServiceImpl.updateUser("unk", userUpdateRequest));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 

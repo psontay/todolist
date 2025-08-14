@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TaskStatisticsController extends BaseController {
 
-    private final TaskService taskService;
+  private final TaskService taskService;
 
-    @Operation(summary = "Get task statistics of the current user")
-    @GetMapping
-    public ResponseEntity<ApiResponse<TaskStatisticsResponse>> getStatistics() {
-        return buildSuccessResponse("Fetched task statistics", taskService.getStatistics());
-    }
+  @Operation(summary = "Get task statistics of the current user")
+  @GetMapping
+  public ResponseEntity<ApiResponse<TaskStatisticsResponse>> getStatistics() {
+    return buildSuccessResponse("Fetched task statistics", taskService.getStatistics());
+  }
 }

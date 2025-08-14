@@ -2,11 +2,12 @@ package com.sontaypham.todolist.configuration;
 
 import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.Task;
-import com.sontaypham.todolist.repository.EmailRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TaskDeadlineNotifier {
   TaskRepository taskRepository;
-  EmailRepository emailRepository;
+  EmailService emailService;
 
   @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
   public void checkAndSendDeadlineWarnings() {
@@ -48,7 +49,7 @@ public class TaskDeadlineNotifier {
           && now.isBefore(task.getDeadline())
           && Boolean.FALSE.equals(task.getWarningEmailSent())) {
         log.info("Sending warning email for task: {}", task.getId());
-        emailRepository.sendSimpleMail(
+        emailService.sendSimpleMail(
             EmailDetails.builder()
                 .to(task.getUser().getEmail())
                 .subject("⏰ Task approaching deadline!")

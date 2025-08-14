@@ -12,16 +12,15 @@ import com.sontaypham.todolist.enums.RoleName;
 import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.UserMapper;
-import com.sontaypham.todolist.repository.EmailRepository;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.repository.UserRepository;
+import com.sontaypham.todolist.service.EmailService;
+import com.sontaypham.todolist.service.UserService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.sontaypham.todolist.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -42,31 +41,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE , makeFinal = true)
-public class  UserServiceImpl implements UserService {
-   UserRepository userRepository;
-   PasswordEncoder passwordEncoder;
-   UserMapper userMapper;
-   RoleRepository roleRepository;
-   TaskRepository taskRepository;
-   EmailRepository emailRepository;
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class UserServiceImpl implements UserService {
+  UserRepository userRepository;
+  PasswordEncoder passwordEncoder;
+  UserMapper userMapper;
+  RoleRepository roleRepository;
+  TaskRepository taskRepository;
+  EmailService emailService;
 
-    @CachePut(cacheNames = "user-create", key = "#result.id")
+  @CachePut(cacheNames = "user-create", key = "#result.id")
   @CacheEvict(cacheNames = "user-list", allEntries = true)
   public UserResponse create(UserCreationRequest request) {
     log.info("Creating new user: {}", request.getName());
     User user = userMapper.toUser(request);
-        String emailMessageBody = "Hello "
-                                  + user.getName()
-                                  + "! Congratulations! Your account has been successfully created on "
-                                  + "TodoList App.\n"
-                                  + "\n"
-                                  + "You can now log in and start managing your tasks more efficiently.\n"
-                                  + "\n"
-                                  + "Wishing you a productive and successful day \uD83D\uDCAA\n"
-                                  + "\n"
-                                  + "Best regards,  \n"
-                                  + "SonTayPham - The TodoList App's Admin";
+    String emailMessageBody =
+        "Hello "
+            + user.getName()
+            + "! Congratulations! Your account has been successfully created on "
+            + "TodoList App.\n"
+            + "\n"
+            + "You can now log in and start managing your tasks more efficiently.\n"
+            + "\n"
+            + "Wishing you a productive and successful day \uD83D\uDCAA\n"
+            + "\n"
+            + "Best regards,  \n"
+            + "SonTayPham - The TodoList App's Admin";
     EmailDetails emailDetails =
         EmailDetails.builder()
             .to(user.getEmail())
@@ -87,7 +87,7 @@ public class  UserServiceImpl implements UserService {
       log.error(e.getMessage());
       throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
     }
-    emailRepository.sendSimpleMail(emailDetails);
+    emailService.sendSimpleMail(emailDetails);
     return userMapper.toUserResponse(user);
   }
 

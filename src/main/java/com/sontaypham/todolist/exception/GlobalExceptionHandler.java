@@ -20,10 +20,10 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handlingRuntimeException() {
     return ResponseEntity.badRequest()
         .body(
-                ApiResponse.<Void>builder()
-                                    .status(ErrorCode.UNCATEGORIZED.getCode())
-                                    .message(ErrorCode.UNCATEGORIZED.getMessage())
-                                    .build());
+            ApiResponse.<Void>builder()
+                .status(ErrorCode.UNCATEGORIZED.getCode())
+                .message(ErrorCode.UNCATEGORIZED.getMessage())
+                .build());
   }
 
   @ExceptionHandler(value = ApiException.class)
@@ -31,10 +31,10 @@ public class GlobalExceptionHandler {
     ErrorCode errorCode = e.getErrorCode();
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-                ApiResponse.<Void>builder()
-                                    .status(errorCode.getCode())
-                                    .message(errorCode.getMessage())
-                                    .build());
+            ApiResponse.<Void>builder()
+                .status(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build());
   }
 
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -62,13 +62,13 @@ public class GlobalExceptionHandler {
     }
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-                ApiResponse.<Map<String, String>>builder()
-                                    .status(errorCode.getCode())
-                                    .message(
+            ApiResponse.<Map<String, String>>builder()
+                .status(errorCode.getCode())
+                .message(
                     Objects.nonNull(attributes)
                         ? mapAttributes(errorCode.getMessage(), attributes)
                         : errorCode.getMessage())
-                                    .build());
+                .build());
   }
 
   @ExceptionHandler(value = AccessDeniedException.class)
@@ -76,10 +76,10 @@ public class GlobalExceptionHandler {
     ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
     return ResponseEntity.status(errorCode.getHttpStatus())
         .body(
-                ApiResponse.<Void>builder()
-                                    .status(errorCode.getCode())
-                                    .message(errorCode.getMessage())
-                                    .build());
+            ApiResponse.<Void>builder()
+                .status(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build());
   }
 
   private String mapAttributes(String message, Map<String, Object> attributes) {
