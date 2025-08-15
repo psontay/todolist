@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,8 +33,8 @@ public class RoleServiceImpl implements RoleService {
   RoleMapper roleMapper;
   PermissionRepository permissionRepository;
 
+  @Override
   @Caching(
-      put = @CachePut(cacheNames = "role-create", key = "#result.name"),
       evict = {
         @CacheEvict(cacheNames = "role-list", key = "'all'"),
         @CacheEvict(cacheNames = "role-keyword", allEntries = true)
@@ -57,12 +56,14 @@ public class RoleServiceImpl implements RoleService {
     return roleMapper.toRoleResponse(role);
   }
 
+  @Override
   @Cacheable(cacheNames = "role-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<RoleResponse> getAll() {
     return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
   }
 
+  @Override
   @Cacheable(cacheNames = "role-by-name", key = "#roleName")
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse findByName(String roleName) {
@@ -73,12 +74,14 @@ public class RoleServiceImpl implements RoleService {
         .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
   }
 
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
   public boolean existsByName(String roleName) {
     log.info("<Exists Role Method> {}", roleName);
     return roleRepository.existsByName(roleName);
   }
 
+  @Override
   @Cacheable(cacheNames = "role-by-des", key = "#des")
   @PreAuthorize("hasRole('ADMIN')")
   public RoleResponse findByDescription(String des) {
@@ -89,6 +92,7 @@ public class RoleServiceImpl implements RoleService {
         .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
   }
 
+  @Override
   @Caching(
       evict = {
         @CacheEvict(cacheNames = "role-by-name", key = "#roleName"),
@@ -102,6 +106,7 @@ public class RoleServiceImpl implements RoleService {
     roleRepository.deleteByName(roleName);
   }
 
+  @Override
   @Cacheable(cacheNames = "role-keyword", key = "#keyWord")
   @PreAuthorize("hasRole('ADMIN')")
   public List<RoleResponse> findAllByNameIgnoreCase(String keyWord) {
@@ -111,7 +116,7 @@ public class RoleServiceImpl implements RoleService {
         .toList();
   }
 
-  @CachePut(cacheNames = "role-by-name", key = "#result.name")
+  @Override
   @CacheEvict(
       cacheNames = {"role-list", "role-keyword"},
       allEntries = true)
@@ -127,7 +132,7 @@ public class RoleServiceImpl implements RoleService {
     return roleMapper.toRoleResponse(role);
   }
 
-  @CachePut(cacheNames = "role-by-name", key = "#roleName")
+  @Override
   @CacheEvict(
       cacheNames = {"role-list", "role-keyword"},
       allEntries = true)

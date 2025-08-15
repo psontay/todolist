@@ -3,11 +3,10 @@ package com.sontaypham.todolist.configuration;
 import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.repository.TaskRepository;
+import com.sontaypham.todolist.service.EmailService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

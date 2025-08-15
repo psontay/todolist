@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class CurrentUserServiceImpl implements CurrentUserService {
   private final UserRepository userRepository;
 
+  @Override
   public User getCurrentUser() {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     return userRepository

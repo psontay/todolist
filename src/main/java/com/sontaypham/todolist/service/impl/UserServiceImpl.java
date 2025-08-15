@@ -50,8 +50,10 @@ public class UserServiceImpl implements UserService {
   TaskRepository taskRepository;
   EmailService emailService;
 
-  @CachePut(cacheNames = "user-create", key = "#result.id")
-  @CacheEvict(cacheNames = "user-list", allEntries = true)
+  @Override
+  @CacheEvict(
+      cacheNames = {"user-list", "user-by-id", "user-by-email", "user-by-keyword"},
+      allEntries = true)
   public UserResponse create(UserCreationRequest request) {
     log.info("Creating new user: {}", request.getName());
     User user = userMapper.toUser(request);
@@ -91,6 +93,7 @@ public class UserServiceImpl implements UserService {
     return userMapper.toUserResponse(user);
   }
 
+  @Override
   @Cacheable(cacheNames = "user-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> getAllUsers() {
@@ -98,6 +101,7 @@ public class UserServiceImpl implements UserService {
     return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
   }
 
+  @Override
   @Cacheable(cacheNames = "user-by-id", key = "#id")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserById(String id) {
@@ -108,6 +112,7 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
   }
 
+  @Override
   @Cacheable(cacheNames = "user-by-email", key = "#email")
   @PreAuthorize("hasRole('ADMIN')")
   public UserResponse getUserByEmail(String email) {
@@ -118,6 +123,7 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
   }
 
+  @Override
   @CacheEvict(
       cacheNames = {"user-by-id", "user-list"},
       key = "#id")
@@ -165,6 +171,7 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
   }
 
+  @Override
   @CacheEvict(
       cacheNames = {"user-by-id", "user-list"},
       key = "#id")
@@ -177,6 +184,7 @@ public class UserServiceImpl implements UserService {
   }
 
   // advanced service
+  @Override
   @CachePut(cacheNames = "user-by-id", key = "#id")
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
@@ -196,6 +204,7 @@ public class UserServiceImpl implements UserService {
     return userMapper.toUserResponse(user);
   }
 
+  @Override
   @CachePut(cacheNames = "user-by-id", key = "#id")
   @Transactional
   @PostAuthorize("returnObject.name == authentication.name")
@@ -210,6 +219,7 @@ public class UserServiceImpl implements UserService {
     return userMapper.toUserResponse(user);
   }
 
+  @Override
   @Cacheable(cacheNames = "user-by-keyword", key = "#keyword")
   @PreAuthorize("hasRole('ADMIN')")
   public List<UserResponse> searchUsers(String keyword) {
@@ -217,6 +227,10 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByKeyword(keyword).stream().map(userMapper::toUserResponse).toList();
   }
 
+  @Override
+  @CacheEvict(
+      cacheNames = {"task-list", "task-statistics"},
+      key = "#root.target.getCurrentUserId()")
   @Cacheable(cacheNames = "user-profile", key = "#root.target.getCurrentUserId()")
   public UserResponse getUserProfile() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

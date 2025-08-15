@@ -20,19 +20,20 @@ import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.repository.InvalidatedTokenRepository;
 import com.sontaypham.todolist.repository.UserRepository;
 import com.sontaypham.todolist.service.AuthenticationService;
+import com.sontaypham.todolist.service.CurrentUserService;
+import com.sontaypham.todolist.service.EmailService;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-
-import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
+  CurrentUserService currentUserService;
   UserRepository userRepository;
   InvalidatedTokenRepository invalidatedTokenRepository;
   EmailService emailService;
@@ -63,6 +65,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Value("${app.jwt.refreshableDuration}")
   public long refreshableDuration;
 
+  @CacheEvict(
+      cacheNames = {
+        "task-list",
+        "task-statistics",
+        "task-by-status",
+        "task-by-keyword",
+        "task-by-id",
+        "user-profile"
+      },
+      key = "#root.target.getCurrentUserId()",
+      allEntries = true)
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     var user =
         userRepository
@@ -137,6 +150,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return signedJWT;
   }
 
+  @CacheEvict(
+      cacheNames = {
+        "task-list",
+        "task-statistics",
+        "task-by-status",
+        "task-by-keyword",
+        "task-by-id",
+        "user-profile"
+      },
+      key = "#root.target.getCurrentUserId()",
+      allEntries = true)
   public void logout(LogoutRequest request) throws ParseException, JOSEException {
     try {
       var signToken = verifyToken(request.getToken(), true);
@@ -218,5 +242,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
       result.append(CHARACTERS.charAt(index));
     }
     return result.toString();
+  }
+
+  public String getCurrentUserId() {
+    return currentUserService.getCurrentUser().getId();
   }
 }

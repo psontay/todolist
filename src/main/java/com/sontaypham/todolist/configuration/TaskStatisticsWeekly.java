@@ -5,11 +5,10 @@ import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.enums.TaskStatus;
 import com.sontaypham.todolist.repository.TaskRepository;
+import com.sontaypham.todolist.service.EmailService;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
