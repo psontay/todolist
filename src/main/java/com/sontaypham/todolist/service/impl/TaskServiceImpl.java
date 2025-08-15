@@ -3,6 +3,7 @@ package com.sontaypham.todolist.service.impl;
 import com.sontaypham.todolist.dto.request.TaskCreationRequest;
 import com.sontaypham.todolist.dto.request.TaskUpdateRequest;
 import com.sontaypham.todolist.dto.response.TaskResponse;
+import com.sontaypham.todolist.dto.response.TaskSearchResponse;
 import com.sontaypham.todolist.dto.response.TaskStatisticsResponse;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
@@ -13,6 +14,7 @@ import com.sontaypham.todolist.mapper.TaskMapper;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.service.CurrentUserService;
 import com.sontaypham.todolist.service.TaskService;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -34,10 +36,11 @@ public class TaskServiceImpl implements TaskService {
   TaskMapper taskMapper;
   CurrentUserService currentUserService;
 
-  @CachePut(cacheNames = "task-create", key = "#result.id")
+  @Override
   @CacheEvict(
-      cacheNames = {"task-list", "task-statistics"},
-      key = "#root.target.getCurrentUserId()")
+      cacheNames = {"task-list", "task-statistics", "task-by-status"},
+      key = "#root.target.getCurrentUserId()",
+      allEntries = true)
   public TaskResponse create(TaskCreationRequest request) {
     User user = currentUserService.getCurrentUser();
     Task task = taskMapper.toTask(request);
@@ -49,6 +52,7 @@ public class TaskServiceImpl implements TaskService {
     return taskMapper.toTaskResponse(task);
   }
 
+  @Override
   @Cacheable(cacheNames = "task-list", key = "#root.target.getCurrentUserId()")
   public List<TaskResponse> getAllTasksOfCurrentUser() {
     User user = currentUserService.getCurrentUser();
@@ -56,6 +60,7 @@ public class TaskServiceImpl implements TaskService {
     return currentTasks.stream().map(taskMapper::toTaskResponse).toList();
   }
 
+  @Override
   @Cacheable(cacheNames = "task-by-id", key = "#id")
   public TaskResponse getTaskById(String id) {
     User user = currentUserService.getCurrentUser();
@@ -68,9 +73,11 @@ public class TaskServiceImpl implements TaskService {
     return taskMapper.toTaskResponse(isExistsTask);
   }
 
+  @Override
   @CacheEvict(
       cacheNames = {"task-statistics", "task-list"},
-      key = "#root.target.getCurrentUserId()")
+      key = "#root.target.getCurrentUserId()",
+      allEntries = true)
   @CachePut(cacheNames = "task-by-id", key = "#id")
   public TaskResponse updateTask(String id, TaskUpdateRequest request) {
     User user = currentUserService.getCurrentUser();
@@ -87,9 +94,11 @@ public class TaskServiceImpl implements TaskService {
     return taskMapper.toTaskResponse(existingTask);
   }
 
+  @Override
   @CacheEvict(
       cacheNames = {"task-statistics", "task-list"},
-      key = "#root.target.getCurrentUserId()")
+      key = "#root.target.getCurrentUserId()",
+      allEntries = true)
   @Transactional
   public void deleteTask(String id) {
     User user = currentUserService.getCurrentUser();
@@ -106,6 +115,7 @@ public class TaskServiceImpl implements TaskService {
     taskRepository.delete(task);
   }
 
+  @Override
   @Cacheable(cacheNames = "task-by-status", key = "#status + '_' + #root.target.getCurrentUserId()")
   public List<TaskResponse> getTasksByStatus(TaskStatus status) {
     User user = currentUserService.getCurrentUser();
@@ -116,18 +126,24 @@ public class TaskServiceImpl implements TaskService {
         .toList();
   }
 
+  @Override
   @Cacheable(
       cacheNames = "task-by-keyword",
       key = "#keyword + '_' + #root.target.getCurrentUserId()")
-  public List<TaskResponse> searchTasks(String keyword) {
+  public TaskSearchResponse searchTasks(String keyword) {
     User user = currentUserService.getCurrentUser();
     Set<Task> currentTasks = user.getTasks();
-    return currentTasks.stream()
-        .filter(obj -> obj.getTitle().toLowerCase().contains(keyword.toLowerCase()))
-        .map(taskMapper::toTaskResponse)
-        .toList();
+    List<TaskResponse> matched =
+        currentTasks.stream()
+            .filter(obj -> obj.getTitle().toLowerCase().contains(keyword.toLowerCase()))
+            .map(taskMapper::toTaskResponse)
+            .toList();
+    TaskSearchResponse response = new TaskSearchResponse();
+    response.setResults(matched);
+    return response;
   }
 
+  @Override
   @Cacheable(cacheNames = "task-statistics", key = "#root.target.getCurrentUserId()")
   public TaskStatisticsResponse getStatistics() {
     User user = currentUserService.getCurrentUser();
@@ -143,6 +159,40 @@ public class TaskServiceImpl implements TaskService {
         .build();
   }
 
+  @CacheEvict(cacheNames = "task-by-status", key = "#root.target.getCurrentUserId()")
+  @Override
+  public List<TaskResponse> sortTasksByStatus() {
+    User user = currentUserService.getCurrentUser();
+    Set<Task> currentTasks = user.getTasks();
+    List<Task> sortedTask =
+        currentTasks.stream()
+            .sorted(
+                Comparator.comparingInt(
+                    task -> {
+                      switch (task.getStatus()) {
+                        case PENDING:
+                          return 0;
+                        case IN_PROGRESS:
+                          return 1;
+                        case COMPLETED:
+                          return 2;
+                        default:
+                          return 3;
+                      }
+                    }))
+            .toList();
+    return sortedTask.stream().map(taskMapper::toTaskResponse).toList();
+  }
+  @Override
+  public List<TaskResponse> sortTasksByDeadline() {
+      User user = currentUserService.getCurrentUser();
+      Set<Task> currentTasks = user.getTasks();
+      List<Task> sortedTask =
+              currentTasks.stream().sorted( (task1 , task2) -> task1.getDeadline().compareTo(task2.getDeadline()) ).toList();
+      return sortedTask.stream().map(taskMapper::toTaskResponse).toList();
+  }
+
+  @Override
   public String getCurrentUserId() {
     return currentUserService.getCurrentUser().getId();
   }

@@ -3,6 +3,7 @@ package com.sontaypham.todolist.controller.task;
 import com.sontaypham.todolist.controller.BaseController;
 import com.sontaypham.todolist.dto.response.ApiResponse;
 import com.sontaypham.todolist.dto.response.TaskResponse;
+import com.sontaypham.todolist.dto.response.TaskSearchResponse;
 import com.sontaypham.todolist.enums.TaskStatus;
 import com.sontaypham.todolist.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +26,21 @@ public class TaskQueryController extends BaseController {
     return buildSuccessResponse("Fetched tasks by status", taskService.getTasksByStatus(status));
   }
 
+  @Operation(summary = "Sort tasks by status")
+  @GetMapping("/sort/status")
+  public ResponseEntity<ApiResponse<List<TaskResponse>>> sortByStatus() {
+    List<TaskResponse> result = taskService.sortTasksByStatus();
+    return buildSuccessResponse("Sorted tasks by status", result);
+  }
+  @Operation( summary = "Sort task by deadline")
+  @GetMapping("/sort/deadline")
+  public ResponseEntity<ApiResponse<List<TaskResponse>>> sortByDeadline() {
+      List<TaskResponse> result = taskService.sortTasksByDeadline();
+      return buildSuccessResponse("Sorted tasks by deadline", result);
+  }
   @Operation(summary = "Search tasks by keyword")
   @GetMapping("/search")
-  public ResponseEntity<ApiResponse<List<TaskResponse>>> searchTasks(@RequestParam String keyword) {
+  public ResponseEntity<ApiResponse<TaskSearchResponse>> searchTasks(@RequestParam String keyword) {
     return buildSuccessResponse("Searched tasks successfully", taskService.searchTasks(keyword));
   }
 }

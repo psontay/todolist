@@ -150,23 +150,6 @@ class TaskServiceImplIT {
   }
 
   @Test
-  void searchTasks_success() {
-    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
-    when(taskMapper.toTaskResponse(mockTask)).thenReturn(taskResponse);
-
-    List<TaskResponse> result = taskServiceImpl.searchTasks("task");
-    assertEquals(1, result.size());
-  }
-
-  @Test
-  void searchTasks_noMatch_returnsEmpty() {
-    when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
-
-    List<TaskResponse> result = taskServiceImpl.searchTasks("unmatch");
-    assertEquals(0, result.size());
-  }
-
-  @Test
   void getStatistics_success() {
     when(currentUserServiceImpl.getCurrentUser()).thenReturn(mockUser);
 

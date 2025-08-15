@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,9 +29,14 @@ public class PermissionServiceImpl implements PermissionService {
   PermissionRepository permissionRepository;
   PermissionMapper permissionMapper;
 
-  @CachePut(cacheNames = "permission-by-name", key = "#result.name")
+  @Override
   @CacheEvict(
-      cacheNames = {"permission-list", "permission-keyword"},
+      cacheNames = {
+        "permission-list",
+        "permission-keyword",
+        "permission-by-name",
+        "permission-by-description"
+      },
       allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse createPermission(PermissionRequest request) {
@@ -44,6 +48,7 @@ public class PermissionServiceImpl implements PermissionService {
     return permissionMapper.toPermissionResponse(permission);
   }
 
+  @Override
   @Cacheable(cacheNames = "permission-list", key = "'all'")
   @PreAuthorize("hasRole('ADMIN')")
   public List<PermissionResponse> getPermissions() {
@@ -53,6 +58,7 @@ public class PermissionServiceImpl implements PermissionService {
         .toList();
   }
 
+  @Override
   @Cacheable(cacheNames = "permission-by-name", key = "#permissionName")
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse findByName(String permissionName) {
@@ -63,12 +69,14 @@ public class PermissionServiceImpl implements PermissionService {
         .orElseThrow(() -> new ApiException(ErrorCode.PERMISSION_NOT_FOUND));
   }
 
+  @Override
   @PreAuthorize("hasRole('ADMIN')")
   public boolean existsByName(String permissionName) {
     log.info("method existsPermissionByPermissionName : {}", permissionName);
     return permissionRepository.existsByName(permissionName);
   }
 
+  @Override
   @Cacheable(cacheNames = "permission-by-description", key = "#description")
   @PreAuthorize("hasRole('ADMIN')")
   public PermissionResponse findByDescription(String description) {
@@ -79,9 +87,14 @@ public class PermissionServiceImpl implements PermissionService {
         .orElseThrow(() -> new ApiException(ErrorCode.PERMISSION_NOT_FOUND));
   }
 
-  @CachePut(cacheNames = "permission-by-name", key = "#result.name")
+  @Override
   @CacheEvict(
-      cacheNames = {"permission-list", "permission-keyword"},
+      cacheNames = {
+        "permission-list",
+        "permission-keyword",
+        "permission-by-name",
+        "permission-by-description",
+      },
       allEntries = true)
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
@@ -97,8 +110,14 @@ public class PermissionServiceImpl implements PermissionService {
     return permissionMapper.toPermissionResponse(permission);
   }
 
+  @Override
   @CacheEvict(
-      cacheNames = {"permission-by-name", "permission-list", "permission-keyword"},
+      cacheNames = {
+        "permission-by-name",
+        "permission-list",
+        "permission-keyword",
+        "permission-by-description"
+      },
       allEntries = true)
   @PreAuthorize("hasRole('ADMIN')")
   public void deletePermissionByName(String permissionName) {
@@ -108,6 +127,7 @@ public class PermissionServiceImpl implements PermissionService {
     permissionRepository.deletePermissionByName(permissionName);
   }
 
+  @Override
   @Cacheable(cacheNames = "permission-keyword", key = "#keyword")
   @PreAuthorize("hasRole('ADMIN')")
   public List<PermissionResponse> searchByKeyword(String keyword) {
