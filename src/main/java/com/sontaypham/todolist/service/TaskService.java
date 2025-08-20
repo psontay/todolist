@@ -27,7 +27,7 @@ public interface TaskService {
 
   List<TaskResponse> sortTasksByDeadline();
 
-        TaskStatisticsResponse getStatistics();
+  TaskStatisticsResponse getStatistics();
 
   String getCurrentUserId();
 }

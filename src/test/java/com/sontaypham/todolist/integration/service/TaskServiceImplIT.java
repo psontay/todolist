@@ -38,7 +38,7 @@ class TaskServiceImplIT {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    mockUser = User.builder().id("user1").name("Test").tasks(new HashSet<>()).build();
+    mockUser = User.builder().id("user1").username("Test").tasks(new HashSet<>()).build();
     mockTask =
         Task.builder()
             .id("task1")

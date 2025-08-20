@@ -17,12 +17,7 @@ public class CustomJwtDecoder implements JwtDecoder {
   @Value("${app.jwt.secret}")
   private String signerKey;
 
-  //  private AuthenticationService authenticationService;
   private NimbusJwtDecoder nimbusJwtDecoder = null;
-
-  //  public CustomJwtDecoder(ObjectProvider<AuthenticationService> provider) {
-  //    this.authenticationService = provider.getIfAvailable();
-  //  }
 
   @Override
   public Jwt decode(String token) throws JwtException {

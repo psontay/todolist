@@ -48,7 +48,7 @@ public class UserCrudController extends BaseController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
-    userService.deleteUser(id);
+    userService.deleteById(id);
     return buildSuccessNoContentResponse("User deleted successfully", null);
   }
 }

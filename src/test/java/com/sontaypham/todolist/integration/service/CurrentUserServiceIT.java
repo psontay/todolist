@@ -31,7 +31,7 @@ class CurrentUserServiceImplImplTest {
     user =
         User.builder()
             .id("123")
-            .name("testuser")
+            .username("testuser")
             .email("test@example.com")
             .password("password")
             .build();
@@ -44,26 +44,26 @@ class CurrentUserServiceImplImplTest {
   @Test
   void getCurrentUser_success() {
     // given
-    when(userRepository.findByName("testuser")).thenReturn(Optional.of(user));
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
     // when
     User result = currentUserServiceImpl.getCurrentUser();
 
     // then
     assertNotNull(result);
-    assertEquals("testuser", result.getName());
-    verify(userRepository).findByName("testuser");
+    assertEquals("testuser", result.getUsername());
+    verify(userRepository).findByUsername("testuser");
   }
 
   @Test
   void getCurrentUser_userNotFound_throwsException() {
     // given
-    when(userRepository.findByName("testuser")).thenReturn(Optional.empty());
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.empty());
 
     // when & then
     ApiException exception =
         assertThrows(ApiException.class, () -> currentUserServiceImpl.getCurrentUser());
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
-    verify(userRepository).findByName("testuser");
+    verify(userRepository).findByUsername("testuser");
   }
 }
