@@ -79,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     var user =
         userRepository
-            .findByName(request.getUsername())
+            .findByUsername(request.getUsername())
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     PasswordEncoder encoder = new BCryptPasswordEncoder(10);
     boolean userPassword = encoder.matches(request.getPassword(), user.getPassword());
@@ -93,7 +93,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
     JWTClaimsSet jwtClaimsSet =
         new JWTClaimsSet.Builder()
-            .subject(user.getName())
+            .subject(user.getUsername())
             .issuer("sontaypham")
             .issueTime(new Date())
             .expirationTime(
@@ -185,7 +185,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String username = signedJWT.getJWTClaimsSet().getSubject();
     User user =
         userRepository
-            .findByName(username)
+            .findByUsername(username)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     String token = generateToken(user);
     return RefreshTokenResponse.builder().success(true).token(token).build();

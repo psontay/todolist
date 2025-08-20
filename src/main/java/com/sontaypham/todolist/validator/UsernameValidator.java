@@ -3,9 +3,9 @@ package com.sontaypham.todolist.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class NameValidator implements ConstraintValidator<NameConstraint, String> {
+public class UsernameValidator implements ConstraintValidator<UsernameConstraint, String> {
   @Override
-  public void initialize(NameConstraint constraintAnnotation) {
+  public void initialize(UsernameConstraint constraintAnnotation) {
     ConstraintValidator.super.initialize(constraintAnnotation);
   }
 

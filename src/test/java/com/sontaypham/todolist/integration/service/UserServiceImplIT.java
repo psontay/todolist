@@ -80,7 +80,7 @@ public class UserServiceImplIT {
     user =
         User.builder()
             .id("sontaypham")
-            .name("Test")
+            .username("Test")
             .email("user@test@gmail.com")
             .password("irrelevant")
             .roles(Set.of(Role.builder().name(RoleName.USER.name()).build()))
@@ -91,21 +91,21 @@ public class UserServiceImplIT {
         Task.builder().id("task1").title("Old Title").status(TaskStatus.PENDING).user(user).build();
     userCreationRequest =
         UserCreationRequest.builder()
-            .name("Test")
+            .userName("Test")
             .email("user@test@gmail.com")
             .password("irrelevant")
             .build();
     userResponse =
         UserResponse.builder()
             .id("sontaypham")
-            .name("Test")
+            .userName("Test")
             .email("user@test@gmail.com")
             .roles(Set.of(adminRole.getName(), userRole.getName()))
             .build();
 
     userUpdateRequest =
         UserUpdateRequest.builder()
-            .name("TestUpdate")
+            .userName("TestUpdate")
             .email("user@update@gmail.com")
             .password("updated")
             .roles(Set.of(RoleName.USER.name(), RoleName.ADMIN.name()))
@@ -131,7 +131,7 @@ public class UserServiceImplIT {
 
     // then
     assertNotNull(result);
-    assertEquals("Test", result.getName());
+    assertEquals("Test", result.getUserName());
     assertEquals("user@test@gmail.com", result.getEmail());
     verify(userMapper).toUser(userCreationRequest);
     verify(passwordEncoder).encode("irrelevant");
@@ -223,7 +223,7 @@ public class UserServiceImplIT {
     when(roleRepository.findByName(RoleName.USER.name())).thenReturn(Optional.of(userRole));
     when(roleRepository.findByName(RoleName.ADMIN.name())).thenReturn(Optional.of(adminRole));
     userServiceImpl.updateUser("sontaypham", userUpdateRequest);
-    assertEquals("TestUpdate", user.getName());
+    assertEquals("TestUpdate", user.getUsername());
     assertEquals("user@update@gmail.com", user.getEmail());
     assertEquals("encodedPassword", user.getPassword());
 
@@ -276,7 +276,7 @@ public class UserServiceImplIT {
   @WithMockUser(roles = "ADMIN")
   void deleteUser_success() {
     when(userRepository.findById("sontaypham")).thenReturn(Optional.of(user));
-    userServiceImpl.deleteUser("sontaypham");
+    userServiceImpl.deleteByUsername("sontaypham");
     assertEquals(0, userRepository.findAll().size());
     verify(userRepository).deleteById("sontaypham");
   }
@@ -286,7 +286,7 @@ public class UserServiceImplIT {
   void deleteUser_userNotFound_throwsException() {
     when(userRepository.findById("sontaypham")).thenReturn(Optional.empty());
     ApiException exception =
-        assertThrows(ApiException.class, () -> userServiceImpl.deleteUser("sontaypham"));
+        assertThrows(ApiException.class, () -> userServiceImpl.deleteByUsername("sontaypham"));
     assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -392,7 +392,7 @@ public class UserServiceImplIT {
   @Test
   @WithMockUser(username = "Test", roles = "USER")
   void getUserProfile_success() throws Exception {
-    when(userRepository.findByName("sontaypham")).thenReturn(Optional.of(user));
+    when(userRepository.findByUsername("sontaypham")).thenReturn(Optional.of(user));
     when(userMapper.toUserResponse(user)).thenReturn(userResponse);
     mockMvc
         .perform(get("/users/profile").with(jwt().jwt(jwt -> jwt.claim("userId", "sontaypham"))))

@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = NameValidator.class)
-public @interface NameConstraint {
+@Constraint(validatedBy = UsernameValidator.class)
+public @interface UsernameConstraint {
   String message() default "INVALID_USERNAME";
 
   Class<?>[] groups() default {};

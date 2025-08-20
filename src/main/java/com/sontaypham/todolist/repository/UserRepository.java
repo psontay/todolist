@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-  Optional<User> findByName(String name);
+  Optional<User> findByUsername(String userName);
 
-  boolean existsByName(String name);
+  boolean existsByUsername(String userName);
 
-  void deleteByName(String name);
+  void deleteUserById(String id);
+
+  void deleteByUsername(String userName);
 
   Optional<User> findById(@NonNull String id);
 
@@ -24,7 +26,7 @@ public interface UserRepository extends JpaRepository<User, String> {
   @Query(
       """
     SELECT u FROM User u
-    WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
        OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%'))
        OR LOWER(u.id) LIKE LOWER(CONCAT('%', :keyword, '%'))
     """)

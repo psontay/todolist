@@ -32,12 +32,14 @@ public class TaskQueryController extends BaseController {
     List<TaskResponse> result = taskService.sortTasksByStatus();
     return buildSuccessResponse("Sorted tasks by status", result);
   }
-  @Operation( summary = "Sort task by deadline")
+
+  @Operation(summary = "Sort task by deadline")
   @GetMapping("/sort/deadline")
   public ResponseEntity<ApiResponse<List<TaskResponse>>> sortByDeadline() {
-      List<TaskResponse> result = taskService.sortTasksByDeadline();
-      return buildSuccessResponse("Sorted tasks by deadline", result);
+    List<TaskResponse> result = taskService.sortTasksByDeadline();
+    return buildSuccessResponse("Sorted tasks by deadline", result);
   }
+
   @Operation(summary = "Search tasks by keyword")
   @GetMapping("/search")
   public ResponseEntity<ApiResponse<TaskSearchResponse>> searchTasks(@RequestParam String keyword) {

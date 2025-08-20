@@ -183,13 +183,21 @@ public class TaskServiceImpl implements TaskService {
             .toList();
     return sortedTask.stream().map(taskMapper::toTaskResponse).toList();
   }
+
   @Override
   public List<TaskResponse> sortTasksByDeadline() {
-      User user = currentUserService.getCurrentUser();
-      Set<Task> currentTasks = user.getTasks();
-      List<Task> sortedTask =
-              currentTasks.stream().sorted( (task1 , task2) -> task1.getDeadline().compareTo(task2.getDeadline()) ).toList();
-      return sortedTask.stream().map(taskMapper::toTaskResponse).toList();
+    User user = currentUserService.getCurrentUser();
+    Set<Task> currentTasks = user.getTasks();
+    List<Task> sortedTask =
+        currentTasks.stream()
+            .sorted(
+                (t1, t2) -> {
+                  if (t1.getDeadline() == null) return 1;
+                  if (t2.getDeadline() == null) return -1;
+                  return t1.getDeadline().compareTo(t2.getDeadline());
+                })
+            .toList();
+    return sortedTask.stream().map(taskMapper::toTaskResponse).toList();
   }
 
   @Override

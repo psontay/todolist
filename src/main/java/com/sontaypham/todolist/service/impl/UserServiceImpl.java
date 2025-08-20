@@ -55,11 +55,11 @@ public class UserServiceImpl implements UserService {
       cacheNames = {"user-list", "user-by-id", "user-by-email", "user-by-keyword"},
       allEntries = true)
   public UserResponse create(UserCreationRequest request) {
-    log.info("Creating new user: {}", request.getName());
+    log.info("Creating new user: {}", request.getUserName());
     User user = userMapper.toUser(request);
     String emailMessageBody =
         "Hello "
-            + user.getName()
+            + user.getUsername()
             + "! Congratulations! Your account has been successfully created on "
             + "TodoList App.\n"
             + "\n"
@@ -130,11 +130,11 @@ public class UserServiceImpl implements UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
-    log.info("Updating user: {}", request.getName());
+    log.info("Updating user: {}", request.getUserName());
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-    user.setName(request.getName());
+    user.setUsername(request.getUserName());
     user.setEmail(request.getEmail());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -177,9 +177,9 @@ public class UserServiceImpl implements UserService {
       key = "#id")
   @Transactional
   @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
-  public void deleteUser(String id) {
+  public void deleteById(String id) {
     if (userRepository.findById(id).isEmpty()) throw new ApiException(ErrorCode.USER_NOT_FOUND);
-    log.warn("Deleting user: {}", id);
+    log.warn("Deleting user by id: {}", id);
     userRepository.deleteById(id);
   }
 
@@ -242,6 +242,16 @@ public class UserServiceImpl implements UserService {
             .findById(userId)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     return userMapper.toUserResponse(user);
+  }
+
+  @Override
+  @Transactional
+  public void deleteByUsername(String name) {
+    userRepository
+        .findByUsername(name)
+        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+    log.warn("Deleting user by name: {}", name);
+    userRepository.deleteByUsername(name);
   }
 
   public String getCurrentUserId() {

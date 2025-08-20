@@ -55,14 +55,14 @@ public class ApplicationInitConfig {
           roleRepository.save(
               new Role(RoleName.ADMIN.name(), "Permission for " + RoleName.ADMIN, permissions));
         }
-        if (userRepository.findByName(username).isEmpty()) {
+        if (userRepository.findByUsername(username).isEmpty()) {
           Role adminRole =
               roleRepository
                   .findByName(RoleName.ADMIN.name())
                   .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
           User user =
               User.builder()
-                  .name(username)
+                  .username(username)
                   .password(passwordEncoder.encode(password))
                   .roles(Set.of(adminRole))
                   .build();

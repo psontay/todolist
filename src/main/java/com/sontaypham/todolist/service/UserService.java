@@ -16,8 +16,6 @@ public interface UserService {
 
   void updateUser(String id, UserUpdateRequest request);
 
-  void deleteUser(String id);
-
   UserResponse assignRoleToUser(String id, String roleName);
 
   UserResponse updateUserPassword(String id, String oldPassword, String newPassword);
@@ -25,6 +23,10 @@ public interface UserService {
   List<UserResponse> searchUsers(String keyword);
 
   UserResponse getUserProfile();
+
+  void deleteByUsername(String userName);
+
+  void deleteById(String id);
 
   String getCurrentUserId();
 }

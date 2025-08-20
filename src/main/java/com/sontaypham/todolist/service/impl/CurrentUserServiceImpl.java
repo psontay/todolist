@@ -18,7 +18,7 @@ public class CurrentUserServiceImpl implements CurrentUserService {
   public User getCurrentUser() {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     return userRepository
-        .findByName(username)
+        .findByUsername(username)
         .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
   }
 }
