@@ -224,10 +224,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     String newPassword = generateRandomString(12);
     user.setPassword(passwordEncoder.encode(newPassword));
     userRepository.save(user);
-    emailService.sendSimpleMail(
+    emailService.sendTemplateHtmlEmail(
         EmailDetails.builder()
             .to(user.getEmail())
-            .messageBody("Your new password : " + newPassword)
+                .templateName("reset-password")
+                .variables(Map.of("userName" , user.getUsername(),"newPassword", newPassword , "loginUrl" , "http://localhost8080/auth/lgoin" ))
             .subject("Password reset request for Your TodoList Account")
             .build());
     return ResetPasswordResponse.builder()

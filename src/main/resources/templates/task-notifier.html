@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Thông báo Deadline Task</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 32px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            color: #d32f2f;
+            margin: 0 0 16px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0 0 16px;
+        }
+        .task-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d32f2f;
+            background: #feece7;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #d32f2f;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #b71c1c;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 24px;
+        }
+        @media only screen and (max-width: 600px) {
+            .card {
+                padding: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            .task-info {
+                font-size: 16px;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h2>⏰ Task sắp đến hạn!</h2>
+        <p>Xin chào,</p>
+        <p>Task của bạn đang gần đến hạn hoàn thành. Dưới đây là thông tin chi tiết:</p>
+        <div class="task-info">
+            <span th:text="${taskTitle}">Task Title</span> - Hạn chót: <span th:text="${deadline}">Deadline</span>
+        </div>
+        <p>Vui lòng kiểm tra và hoàn thành task trước thời hạn để đảm bảo tiến độ.</p>
+        <p>
+            <a class="btn" th:href="@{/tasks}" target="_blank">Xem Task Ngay</a>
+        </p>
+        <p class="footer-text">Nếu bạn đã hoàn thành task này, vui lòng bỏ qua email.</p>
+    </div>
+</div>
+</body>
+</html>

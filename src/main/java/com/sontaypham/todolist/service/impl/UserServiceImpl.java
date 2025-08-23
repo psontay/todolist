@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
       cacheNames = {"user-list", "user-by-id", "user-by-email", "user-by-keyword"},
       allEntries = true)
   public UserResponse create(UserCreationRequest request) {
-    log.info("Creating new user: {}", request.getUserName());
+    log.info("Creating new user: {}", request.getUsername());
     User user = userMapper.toUser(request);
     String emailMessageBody =
         "Hello "
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
       log.error(e.getMessage());
       throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
     }
-    emailService.sendSimpleMail(emailDetails);
+    emailService.sendTextEmail(emailDetails);
     return userMapper.toUserResponse(user);
   }
 
@@ -130,11 +130,11 @@ public class UserServiceImpl implements UserService {
   @Transactional
   @PreAuthorize("hasRole('ADMIN')")
   public void updateUser(String id, UserUpdateRequest request) {
-    log.info("Updating user: {}", request.getUserName());
+    log.info("Updating user: {}", request.getUsername());
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
 
-    user.setUsername(request.getUserName());
+    user.setUsername(request.getUsername());
     user.setEmail(request.getEmail());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 
@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
   @Override
   @CachePut(cacheNames = "user-by-id", key = "#id")
   @Transactional
-  @PostAuthorize("returnObject.name == authentication.name")
+  @PostAuthorize("returnObject.username == authentication.name")
   public UserResponse updateUserPassword(String id, String oldPassword, String newPassword) {
     User user =
         userRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));

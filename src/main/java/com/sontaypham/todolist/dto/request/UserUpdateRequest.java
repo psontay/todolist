@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequest {
   @UsernameConstraint(message = "INVALID_USERNAME")
-  String userName;
+  String username;
 
   @EmailConstraint(message = "INVALID_EMAIL")
   String email;

@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
   @UsernameConstraint(message = "INVALID_USERNAME")
-  String userName;
+  String username;
 
   @PasswordConstraint(message = "PASSWORD_TYPE_INVALID")
   String password;

@@ -12,15 +12,16 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "Users")
+@Table(name = "users")
 @ToString(exclude = {"roles", "tasks"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+          @EqualsAndHashCode.Include
   String id;
 
-  @Column(name = "username")
+  @Column(name = "username" , nullable = false, unique = true)
   String username;
 
   String email;

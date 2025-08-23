@@ -91,21 +91,21 @@ public class UserServiceImplIT {
         Task.builder().id("task1").title("Old Title").status(TaskStatus.PENDING).user(user).build();
     userCreationRequest =
         UserCreationRequest.builder()
-            .userName("Test")
+            .username("Test")
             .email("user@test@gmail.com")
             .password("irrelevant")
             .build();
     userResponse =
         UserResponse.builder()
             .id("sontaypham")
-            .userName("Test")
+            .username("Test")
             .email("user@test@gmail.com")
             .roles(Set.of(adminRole.getName(), userRole.getName()))
             .build();
 
     userUpdateRequest =
         UserUpdateRequest.builder()
-            .userName("TestUpdate")
+            .username("TestUpdate")
             .email("user@update@gmail.com")
             .password("updated")
             .roles(Set.of(RoleName.USER.name(), RoleName.ADMIN.name()))
@@ -131,7 +131,7 @@ public class UserServiceImplIT {
 
     // then
     assertNotNull(result);
-    assertEquals("Test", result.getUserName());
+    assertEquals("Test", result.getUsername());
     assertEquals("user@test@gmail.com", result.getEmail());
     verify(userMapper).toUser(userCreationRequest);
     verify(passwordEncoder).encode("irrelevant");

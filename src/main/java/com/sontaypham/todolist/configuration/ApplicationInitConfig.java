@@ -34,7 +34,8 @@ public class ApplicationInitConfig {
 
   @Value("${app.default.password}")
   String password;
-
+    @Value("${app.default.email}")
+    String email;
   @Bean
   ApplicationRunner applicationRunner(
       UserRepository userRepository,
@@ -63,6 +64,7 @@ public class ApplicationInitConfig {
           User user =
               User.builder()
                   .username(username)
+                      .email(email)
                   .password(passwordEncoder.encode(password))
                   .roles(Set.of(adminRole))
                   .build();
