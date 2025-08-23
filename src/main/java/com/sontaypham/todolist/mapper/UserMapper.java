@@ -16,6 +16,7 @@ public interface UserMapper {
 
   @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToStrings")
   @Mapping(target = "tasks", source = "tasks")
+  @Mapping(target = "username" , source = "username")
   UserResponse toUserResponse(User user);
 
   @Named("rolesToStrings")

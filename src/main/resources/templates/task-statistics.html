@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Thống Kê Task Hàng Tuần</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 32px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            color: #0288d1;
+            margin: 0 0 16px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0 0 16px;
+        }
+        .stats {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0288d1;
+            background: #e1f5fe;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            text-align: left;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0288d1;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #01579b;
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 24px;
+        }
+        @media only screen and (max-width: 600px) {
+            .card {
+                padding: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+            .stats {
+                font-size: 16px;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-title {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .task-status {
+            font-size: 14px;
+            color: #0288d1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h2>📊 Thống Kê Task Hàng Tuần</h2>
+        <p>Xin chào <span th:text="${username}"></span>,</p>
+        <p>Dưới đây là báo cáo thống kê công việc của bạn trong tuần này:</p>
+        <div class="stats">
+            <p>Tổng số task: <span th:text="${total}">0</span></p>
+            <p>Đã hoàn thành: <span th:text="${completed}">0</span></p>
+            <p>Đang chờ xử lý: <span th:text="${pending}">0</span></p>
+        </div>
+        <p>Hãy kiểm tra và tiếp tục hoàn thành các task còn lại!</p>
+        <div>
+            <h3>Danh sách Task:</h3>
+            <ul>
+                <li th:each="task : ${pendingTasks}">
+                    <div class="task-title" th:text="${task.title}">Tên task</div> -
+                    <div class="task-status" th:text="${task.status}">Trạng thái</div>
+                </li>
+            </ul>
+        </div>
+        <p class="footer-text">Nếu bạn có thắc mắc, vui lòng liên hệ với tôi.</p>
+    </div>
+</div>
+</body>
+</html>

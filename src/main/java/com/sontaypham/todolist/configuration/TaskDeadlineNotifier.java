@@ -7,6 +7,8 @@ import com.sontaypham.todolist.service.EmailService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -48,11 +50,15 @@ public class TaskDeadlineNotifier {
           && now.isBefore(task.getDeadline())
           && Boolean.FALSE.equals(task.getWarningEmailSent())) {
         log.info("Sending warning email for task: {}", task.getId());
-        emailService.sendSimpleMail(
+        emailService.sendTemplateHtmlEmail(
             EmailDetails.builder()
                 .to(task.getUser().getEmail())
+                    .templateName("deadline-notifier")
                 .subject("⏰ Task approaching deadline!")
-                .messageBody("Task \"" + task.getTitle() + "\" is nearing its deadline.")
+                    .variables(Map.of(
+                            "taskTitle" , task.getTitle(),
+                            "deadline" , task.getDeadline().toString()
+                                     ))
                 .build());
         task.setWarningEmailSent(true);
         taskRepository.save(task);

@@ -53,6 +53,7 @@ public class TaskServiceImpl implements TaskService {
   }
 
   @Override
+  @CacheEvict( cacheNames = "task-statistics" , key = "#root.target.getCurrentUserId()" ,  allEntries = true)
   @Cacheable(cacheNames = "task-list", key = "#root.target.getCurrentUserId()")
   public List<TaskResponse> getAllTasksOfCurrentUser() {
     User user = currentUserService.getCurrentUser();
@@ -75,7 +76,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @CacheEvict(
-      cacheNames = {"task-statistics", "task-list"},
+      cacheNames = {"task-statistics", "task-list" , "task-by-status"},
       key = "#root.target.getCurrentUserId()",
       allEntries = true)
   @CachePut(cacheNames = "task-by-id", key = "#id")
@@ -96,7 +97,7 @@ public class TaskServiceImpl implements TaskService {
 
   @Override
   @CacheEvict(
-      cacheNames = {"task-statistics", "task-list"},
+      cacheNames = {"task-statistics", "task-list" , "task-status"},
       key = "#root.target.getCurrentUserId()",
       allEntries = true)
   @Transactional

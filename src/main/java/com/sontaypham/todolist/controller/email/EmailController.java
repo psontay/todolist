@@ -30,7 +30,7 @@ public class EmailController extends BaseController {
   public ResponseEntity<ApiResponse<EmailResponse>> sendEmail(
       @RequestBody EmailDetails emailDetails) {
     try {
-      return buildSuccessResponse("Sent email success!", emailService.sendSimpleMail(emailDetails));
+      return buildSuccessResponse("Sent email success!", emailService.sendTextEmail(emailDetails));
     } catch (Exception e) {
       log.error(e.getMessage());
       return buildErrorResponse(
