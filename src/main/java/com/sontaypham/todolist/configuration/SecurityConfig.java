@@ -50,8 +50,8 @@ public class SecurityConfig {
   @Value("${app.jwt.secret}")
   private String jwtSecret;
 
-  @Autowired private CustomJwtDecoder customJwtDecoder;
-  @Autowired private JwtRevocationFilter jwtRevocationFilter;
+  private final CustomJwtDecoder customJwtDecoder;
+  private final JwtRevocationFilter jwtRevocationFilter;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

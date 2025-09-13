@@ -231,7 +231,6 @@ public class UserServiceImpl implements UserService {
   @CacheEvict(
       cacheNames = {"task-list", "task-statistics"},
       key = "#root.target.getCurrentUserId()")
-  @Cacheable(cacheNames = "user-profile", key = "#root.target.getCurrentUserId()")
   public UserResponse getUserProfile() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     Jwt jwt = (Jwt) authentication.getPrincipal();

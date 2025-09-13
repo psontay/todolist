@@ -176,19 +176,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   public RefreshTokenResponse refreshToken(RefreshTokenRequest request)
       throws ParseException, JOSEException {
-    SignedJWT signedJWT = verifyToken(request.getToken(), true);
-    String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
-    Date expTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+    SignedJWT signedJWT = verifyToken(request.getToken(), true); // check old token
+    String jwtId = signedJWT.getJWTClaimsSet().getJWTID(); // get jwt id
+    Date expTime = signedJWT.getJWTClaimsSet().getExpirationTime(); // get exp time
     InvalidatedToken invalidatedToken =
-        InvalidatedToken.builder().expTime(expTime).id(jwtId).build();
-    invalidatedTokenRepository.save(invalidatedToken);
-    String username = signedJWT.getJWTClaimsSet().getSubject();
-    User user =
+        InvalidatedToken.builder().expTime(expTime).id(jwtId).build(); // build to invalidated token
+    invalidatedTokenRepository.save(invalidatedToken); // save in invalidated token
+    String username = signedJWT.getJWTClaimsSet().getSubject(); // get username
+    // find user by username
+      User user =
         userRepository
             .findByUsername(username)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    String token = generateToken(user);
-    return RefreshTokenResponse.builder().success(true).token(token).build();
+    String token = generateToken(user); // generate new token for user
+    return RefreshTokenResponse.builder().success(true).token(token).build(); // response new token
   }
 
   private List<String> buildScope(User user) {
