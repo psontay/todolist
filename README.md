@@ -1,114 +1,135 @@
-# 📝 ToDoList API
+# ToDoList API
 
-> A robust and secure RESTful API for managing personal tasks, built with **Spring Boot**, **Spring Security**, and **Spring Data JPA**.
-
----
-
-## 🚀 Features
-
-- ✅ **User Management**
-  - Register, login, update profile
-  - Password encryption with BCrypt
-  - Role-based access control (RBAC)
-
-- 📋 **Task Management**
-  - CRUD operations on personal tasks
-  - Update status (pending, in-progress, completed)
-  - Assign tasks to users
-
-- 🔐 **Authentication & Authorization**
-  - JWT-based authentication
-  - Secure API endpoints with role restrictions
-
-- 🧪 **Testing**
-  - Unit & Integration tests with **JUnit 5**, **Mockito**
-  - Code coverage tracking via **JaCoCo**
-
-- 📊 **Database**
-  - PostgreSQL integration with Spring Data JPA
-  - Automatic schema generation with Hibernate
+A RESTful API for managing personal tasks, built with Spring Boot 3.5.x, Spring Security, and Spring Data JPA.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-| Layer          | Technology                  |
-|----------------|-----------------------------|
-| Language       | Java 21                     |
-| Framework      | Spring Boot 3.5.x           |
-| Security       | Spring Security, JWT        |
-| ORM            | Spring Data JPA (Hibernate) |
-| Database       | PostgreSQL                  |
-| Mapping        | MapStruct                   |
-| Testing        | JUnit 5, Mockito, JaCoCo     |
-| Build Tool     | Maven                       |
+| Layer       | Technology                        |
+|-------------|-----------------------------------|
+| Language    | Java 21                           |
+| Framework   | Spring Boot 3.5.x                 |
+| Security    | Spring Security, JWT              |
+| ORM         | Spring Data JPA (Hibernate)       |
+| Database    | PostgreSQL                        |
+| Mapping     | MapStruct                         |
+| Testing     | JUnit 5, Mockito, JaCoCo          |
+| Build Tool  | Maven                             |
 
 ---
 
-## ⚙️ Getting Started
+## Features
 
-### 📦 Requirements
+**User Management**
+- Register, login, and update user profile
+- Password encryption with BCrypt
+- Role-based access control (RBAC)
+
+**Task Management**
+- Full CRUD operations on personal tasks
+- Task status lifecycle: `pending`, `in-progress`, `completed`
+- Task assignment to users
+
+**Authentication and Authorization**
+- JWT-based stateless authentication
+- Endpoint-level role restrictions via Spring Security
+
+**Testing**
+- Unit and integration tests with JUnit 5 and Mockito
+- Code coverage reporting via JaCoCo
+
+---
+
+## Requirements
 
 - Java 21
 - Maven 3.8+
 - PostgreSQL
 
-### 🧑‍💻 Run Locally
+---
+
+## Getting Started
 
 ```bash
-# Clone the repository
-git clone https://github.com/sontay226/todolist.git
+git clone https://github.com/psontay/todolist.git
 cd todolist
+```
 
-# Configure PostgreSQL DB in src/main/resources/application.properties
+Configure your PostgreSQL connection in `src/main/resources/application.properties`:
 
-# Build & run
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/todolist
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+```
+
+Run the application:
+
+```bash
 ./mvnw spring-boot:run
-📌 Example Endpoints
-🔐 Authentication
-POST /api/auth/login
+```
 
-POST /api/auth/register
+---
 
-👤 User
-GET /api/users/me
+## API Endpoints
 
-PUT /api/users/{id}
+**Authentication**
 
-DELETE /api/users/{id}
+| Method | Endpoint              | Description       |
+|--------|-----------------------|-------------------|
+| POST   | /api/auth/register    | Register new user |
+| POST   | /api/auth/login       | Authenticate user |
 
-✅ Task
-POST /api/tasks
+**Users**
 
-GET /api/tasks
+| Method | Endpoint           | Description          |
+|--------|--------------------|----------------------|
+| GET    | /api/users/me      | Get current user     |
+| PUT    | /api/users/{id}    | Update user profile  |
+| DELETE | /api/users/{id}    | Delete user account  |
 
-PUT /api/tasks/{id}
+**Tasks**
 
-DELETE /api/tasks/{id}
+| Method | Endpoint           | Description       |
+|--------|--------------------|-------------------|
+| POST   | /api/tasks         | Create a task     |
+| GET    | /api/tasks         | List all tasks    |
+| PUT    | /api/tasks/{id}    | Update a task     |
+| DELETE | /api/tasks/{id}    | Delete a task     |
 
-🧪 Run Tests
-bash
-Copy
-Edit
-# Unit & integration tests
+---
+
+## Running Tests
+
+```bash
+# Run all tests
 ./mvnw test
 
-# View coverage (after configured)
+# Generate coverage report
 ./mvnw verify
 open target/site/jacoco/index.html
-🧠 Folder Structure
-graphql
-Copy
-Edit
-├── controller       # REST Controllers
+```
+
+---
+
+## Project Structure
+
+```
+src/main/java/
+├── controller       # REST controllers
 ├── service          # Business logic
 ├── repository       # Spring Data JPA repositories
-├── entities         # JPA Entities
-├── dto              # Request/Response DTOs
-├── security         # JWT and config
+├── entities         # JPA entities
+├── dto              # Request and response DTOs
+├── security         # JWT filter and security config
 ├── mapper           # MapStruct mappers
-├── config           # Application config
-└── exception        # Custom exceptions
-📮 Contact
-Made with ❤️ by @sontay226
-Feel free to contribute or report issues.
+├── config           # Application configuration
+└── exception        # Global exception handling
+```
+
+---
+
+## Contributing
+
+Pull requests are welcome. For significant changes, please open an issue first to discuss the proposed modification.
