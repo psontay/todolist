@@ -1,17 +1,20 @@
 package com.sontaypham.todolist.service.impl;
 
-import com.sontaypham.todolist.dto.event.UserCreatedEvent;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sontaypham.todolist.dto.request.TaskUpdateRequest;
 import com.sontaypham.todolist.dto.request.UserCreationRequest;
 import com.sontaypham.todolist.dto.request.UserUpdateRequest;
 import com.sontaypham.todolist.dto.response.UserResponse;
+import com.sontaypham.todolist.entities.Outbox;
 import com.sontaypham.todolist.entities.Role;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
+import com.sontaypham.todolist.enums.OutboxStatus;
 import com.sontaypham.todolist.enums.RoleName;
 import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.UserMapper;
+import com.sontaypham.todolist.repository.OutboxRepository;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.repository.UserRepository;
@@ -24,7 +27,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +37,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,12 +55,14 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     RoleRepository roleRepository;
     TaskRepository taskRepository;
-    ApplicationEventPublisher eventPublisher;
+    OutboxRepository outboxRepository;
+    ObjectMapper objectMapper;
 
     @Override
     @CacheEvict(
             cacheNames = {"user-list", "user-by-id", "user-by-email", "user-by-keyword"},
             allEntries = true)
+    @Transactional
     public UserResponse create(UserCreationRequest request) {
         log.info("Creating new user: {}", request.getUsername());
         User user = userMapper.toUser(request);
@@ -75,7 +80,26 @@ public class UserServiceImpl implements UserService {
             log.error(e.getMessage());
             throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
-        eventPublisher.publishEvent(new UserCreatedEvent(this, user));
+        try {
+            UserResponse userResponse = userMapper.toUserResponse(user);
+            String jsonPayload = objectMapper.writeValueAsString(userResponse);
+
+            Outbox outboxEvent = Outbox.builder()
+                                       .aggregateType("USER")
+                                       .aggregateId(user.getId())
+                                       .eventType("USER_CREATED")
+                                       .payload(jsonPayload)
+                                       .status(OutboxStatus.PENDING)
+                                       .createdAt(LocalDateTime.now())
+                                       .build();
+
+            outboxRepository.save(outboxEvent);
+            log.info("Outbox event saved successfully for user: {}", user.getUsername());
+        } catch (Exception e) {
+            log.error("Failed to serialize and save outbox event", e);
+            throw new RuntimeException("System error during user registration");
+        }
+
         return userMapper.toUserResponse(user);
     }
 
