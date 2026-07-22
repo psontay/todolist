@@ -1,6 +1,11 @@
 package com.sontaypham.todolist.service.impl;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -14,7 +19,11 @@ import com.sontaypham.todolist.dto.response.AuthenticationResponse;
 import com.sontaypham.todolist.dto.response.IntrospectResponse;
 import com.sontaypham.todolist.dto.response.RefreshTokenResponse;
 import com.sontaypham.todolist.dto.response.ResetPasswordResponse;
-import com.sontaypham.todolist.entities.*;
+import com.sontaypham.todolist.entities.EmailDetails;
+import com.sontaypham.todolist.entities.InvalidatedToken;
+import com.sontaypham.todolist.entities.Permission;
+import com.sontaypham.todolist.entities.Role;
+import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.exception.ApiException;
 import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.repository.InvalidatedTokenRepository;
@@ -22,11 +31,6 @@ import com.sontaypham.todolist.repository.UserRepository;
 import com.sontaypham.todolist.service.AuthenticationService;
 import com.sontaypham.todolist.service.CurrentUserService;
 import com.sontaypham.todolist.service.EmailService;
-import java.security.SecureRandom;
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,219 +38,271 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.security.SecureRandom;
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE,
+        makeFinal = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
-  CurrentUserService currentUserService;
-  UserRepository userRepository;
-  InvalidatedTokenRepository invalidatedTokenRepository;
-  EmailService emailService;
-  PasswordEncoder passwordEncoder;
-  private static final SecureRandom RANDOM = new SecureRandom();
-  private static final String CHARACTERS =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  @NonFinal
-  @Value("${app.jwt.secret}")
-  public String signerKey;
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final String CHARACTERS =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    CurrentUserService currentUserService;
+    UserRepository userRepository;
+    InvalidatedTokenRepository invalidatedTokenRepository;
+    EmailService emailService;
+    PasswordEncoder passwordEncoder;
+    @NonFinal
+    @Value("${app.jwt.secret}")
+    public String signerKey;
 
-  @NonFinal
-  @Value("${app.jwt.validDuration}")
-  public long validDuration;
+    @NonFinal
+    @Value("${app.jwt.validDuration}")
+    public long validDuration;
 
-  @NonFinal
-  @Value("${app.jwt.refreshableDuration}")
-  public long refreshableDuration;
+    @NonFinal
+    @Value("${app.jwt.refreshableDuration}")
+    public long refreshableDuration;
 
-  @CacheEvict(
-      cacheNames = {
-        "task-list",
-        "task-statistics",
-        "task-by-status",
-        "task-by-keyword",
-        "task-by-id",
-        "user-profile"
-      },
-      key = "#root.target.getCurrentUserId()",
-      allEntries = true)
-  public AuthenticationResponse authenticate(AuthenticationRequest request) {
-    var user =
-        userRepository
-            .findByUsername(request.getUsername())
-            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    PasswordEncoder encoder = new BCryptPasswordEncoder(10);
-    boolean userPassword = encoder.matches(request.getPassword(), user.getPassword());
-    if (!userPassword) throw new ApiException(ErrorCode.UNAUTHENTICATED);
-    String token = generateToken(user);
-    log.info("Generated token: {}", token);
-    return AuthenticationResponse.builder().success(true).token(token).build();
-  }
-
-  private String generateToken(User user) {
-    JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
-    JWTClaimsSet jwtClaimsSet =
-        new JWTClaimsSet.Builder()
-            .subject(user.getUsername())
-            .issuer("sontaypham")
-            .issueTime(new Date())
-            .expirationTime(
-                new Date(
-                    Instant.now().plus(refreshableDuration, ChronoUnit.SECONDS).toEpochMilli()))
-            .claim("scope", buildScope(user))
-            .claim("permission", buildPermissions(user))
-            .claim("userId", user.getId())
-            .claim("jti", UUID.randomUUID().toString())
-            .build();
-    Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-    JWSObject jwsObject = new JWSObject(jwsHeader, payload);
-    try {
-      jwsObject.sign(new MACSigner(signerKey));
-      return jwsObject.serialize();
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      throw new RuntimeException(e);
+    public static String generateRandomString(int length) {
+        StringBuilder result = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int index = RANDOM.nextInt(CHARACTERS.length());
+            result.append(CHARACTERS.charAt(index));
+        }
+        return result.toString();
     }
-  }
 
-  public IntrospectResponse introspect(IntrospectRequest request) {
-    var token = request.getToken();
-    boolean isValid;
-    try {
-      verifyToken(token, false);
-      isValid = true;
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      isValid = false;
+    @CacheEvict(
+            cacheNames = {
+                    "task-list",
+                    "task-statistics",
+                    "task-by-status",
+                    "task-by-keyword",
+                    "task-by-id",
+                    "user-profile"
+            },
+            key = "#root.target.getCurrentUserId()",
+            allEntries = true)
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        var user =
+                userRepository
+                        .findByUsername(request.getUsername())
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        boolean userPassword = passwordEncoder.matches(request.getPassword(), user.getPassword());
+        if (! userPassword) {
+            throw new ApiException(ErrorCode.UNAUTHENTICATED);
+        }
+        String token = generateToken(user);
+        log.info("Generated token: {}", token);
+        return AuthenticationResponse.builder()
+                                     .success(true)
+                                     .token(token)
+                                     .build();
     }
-    return IntrospectResponse.builder().success(isValid).build();
-  }
 
-  public SignedJWT verifyToken(String token, boolean isRefresh)
-      throws ParseException, JOSEException {
-    JWSVerifier verifier = new MACVerifier(signerKey.getBytes()); // get signerKey by verifier
-    SignedJWT signedJWT = SignedJWT.parse(token); // get token by signedJWT parse
-    Date expTime =
-        (isRefresh)
-            ? new Date(
-                signedJWT
-                    .getJWTClaimsSet()
-                    .getIssueTime()
-                    .toInstant()
-                    .plus(refreshableDuration, ChronoUnit.SECONDS)
-                    .toEpochMilli())
-            : signedJWT.getJWTClaimsSet().getExpirationTime();
-    boolean verified = signedJWT.verify(verifier);
-    if (!verified || expTime.before(new Date())) throw new ApiException(ErrorCode.TOKEN_INVALID);
-    String jwtId = signedJWT.getJWTClaimsSet().getJWTID();
-    if (jwtId != null && invalidatedTokenRepository.existsById(jwtId))
-      throw new ApiException(ErrorCode.TOKEN_INVALID);
-    return signedJWT;
-  }
-
-  @CacheEvict(
-      cacheNames = {
-        "task-list",
-        "task-statistics",
-        "task-by-status",
-        "task-by-keyword",
-        "task-by-id",
-        "user-profile"
-      },
-      key = "#root.target.getCurrentUserId()",
-      allEntries = true)
-  public void logout(LogoutRequest request) throws ParseException, JOSEException {
-    try {
-      var signToken = verifyToken(request.getToken(), true);
-      String jti = signToken.getJWTClaimsSet().getJWTID();
-      Date expTime = signToken.getJWTClaimsSet().getExpirationTime();
-      InvalidatedToken invalidatedToken =
-          InvalidatedToken.builder().id(jti).expTime(expTime).build();
-      invalidatedTokenRepository.save(invalidatedToken);
-    } catch (ApiException e) {
-      log.error(e.getMessage());
+    public IntrospectResponse introspect(IntrospectRequest request) {
+        var token = request.getToken();
+        boolean isValid;
+        try {
+            verifyToken(token, false);
+            isValid = true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            isValid = false;
+        }
+        return IntrospectResponse.builder()
+                                 .success(isValid)
+                                 .build();
     }
-  }
 
-  public RefreshTokenResponse refreshToken(RefreshTokenRequest request)
-      throws ParseException, JOSEException {
-    SignedJWT signedJWT = verifyToken(request.getToken(), true); // check old token
-    String jwtId = signedJWT.getJWTClaimsSet().getJWTID(); // get jwt id
-    Date expTime = signedJWT.getJWTClaimsSet().getExpirationTime(); // get exp time
-    InvalidatedToken invalidatedToken =
-        InvalidatedToken.builder().expTime(expTime).id(jwtId).build(); // build to invalidated token
-    invalidatedTokenRepository.save(invalidatedToken); // save in invalidated token
-    String username = signedJWT.getJWTClaimsSet().getSubject(); // get username
-    // find user by username
-      User user =
-        userRepository
-            .findByUsername(username)
-            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    String token = generateToken(user); // generate new token for user
-    return RefreshTokenResponse.builder().success(true).token(token).build(); // response new token
-  }
-
-  private List<String> buildScope(User user) {
-    if (CollectionUtils.isEmpty(user.getRoles())) {
-      return Collections.emptyList();
+    public SignedJWT verifyToken(String token, boolean isRefresh)
+            throws ParseException, JOSEException {
+        JWSVerifier verifier = new MACVerifier(signerKey.getBytes()); // get signerKey by verifier
+        SignedJWT signedJWT = SignedJWT.parse(token); // get token by signedJWT parse
+        Date expTime =
+                (isRefresh)
+                        ? new Date(
+                        signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(refreshableDuration, ChronoUnit.SECONDS)
+                        .toEpochMilli())
+                        : signedJWT.getJWTClaimsSet()
+                                   .getExpirationTime();
+        boolean verified = signedJWT.verify(verifier);
+        if (! verified || expTime.before(new Date())) {
+            throw new ApiException(ErrorCode.TOKEN_INVALID);
+        }
+        String jwtId = signedJWT.getJWTClaimsSet()
+                                .getJWTID();
+        if (jwtId != null && invalidatedTokenRepository.existsById(jwtId)) {
+            throw new ApiException(ErrorCode.TOKEN_INVALID);
+        }
+        return signedJWT;
     }
-    return user.getRoles().stream().map(Role::getName).toList();
-  }
 
-  private List<String> buildPermissions(User user) {
-    if (CollectionUtils.isEmpty(user.getRoles())) {
-      return Collections.emptyList();
+    @CacheEvict(
+            cacheNames = {
+                    "task-list",
+                    "task-statistics",
+                    "task-by-status",
+                    "task-by-keyword",
+                    "task-by-id",
+                    "user-profile"
+            },
+            key = "#root.target.getCurrentUserId()",
+            allEntries = true)
+    public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        try {
+            var signToken = verifyToken(request.getToken(), true);
+            String jti = signToken.getJWTClaimsSet()
+                                  .getJWTID();
+            Date expTime = signToken.getJWTClaimsSet()
+                                    .getExpirationTime();
+            InvalidatedToken invalidatedToken =
+                    InvalidatedToken.builder()
+                                    .id(jti)
+                                    .expTime(expTime)
+                                    .build();
+            invalidatedTokenRepository.save(invalidatedToken);
+        } catch (ApiException e) {
+            log.error(e.getMessage());
+        }
     }
-    return user.getRoles().stream()
-        .flatMap(role -> role.getPermissions().stream())
-        .map(Permission::getName)
-        .distinct()
-        .toList();
-  }
 
-  public void assertTokenNotRevoked(SignedJWT jwt) throws ParseException {
-    String jwtId = jwt.getJWTClaimsSet().getJWTID();
-    if (jwtId != null && invalidatedTokenRepository.existsById(jwtId)) {
-      throw new ApiException(ErrorCode.TOKEN_INVALID);
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request)
+            throws ParseException, JOSEException {
+        SignedJWT signedJWT = verifyToken(request.getToken(), true); // check old token
+        String jwtId = signedJWT.getJWTClaimsSet()
+                                .getJWTID(); // get jwt id
+        Date expTime = signedJWT.getJWTClaimsSet()
+                                .getExpirationTime(); // get exp time
+        InvalidatedToken invalidatedToken =
+                InvalidatedToken.builder()
+                                .expTime(expTime)
+                                .id(jwtId)
+                                .build(); // build to invalidated token
+        invalidatedTokenRepository.save(invalidatedToken); // save in invalidated token
+        String username = signedJWT.getJWTClaimsSet()
+                                   .getSubject(); // get username
+        // find user by username
+        User user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        String token = generateToken(user); // generate new token for user
+        return RefreshTokenResponse.builder()
+                                   .success(true)
+                                   .token(token)
+                                   .build(); // response new token
     }
-  }
 
-  public ResetPasswordResponse resetPasswordEmail(ResetPasswordRequest request) {
-    User user =
-        userRepository
-            .findByEmail(request.getEmail())
-            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-    String newPassword = generateRandomString(12);
-    user.setPassword(passwordEncoder.encode(newPassword));
-    userRepository.save(user);
-    emailService.sendTemplateHtmlEmail(
-        EmailDetails.builder()
-            .to(user.getEmail())
-                .templateName("reset-password")
-                .variables(Map.of("userName" , user.getUsername(),"newPassword", newPassword , "loginUrl" , "http://localhost8080/auth/lgoin" ))
-            .subject("Password reset request for Your TodoList Account")
-            .build());
-    return ResetPasswordResponse.builder()
-        .message("New password has been sent to your email! Pls check it.")
-        .build();
-  }
-
-  public static String generateRandomString(int length) {
-    StringBuilder result = new StringBuilder(length);
-    for (int i = 0; i < length; i++) {
-      int index = RANDOM.nextInt(CHARACTERS.length());
-      result.append(CHARACTERS.charAt(index));
+    public void assertTokenNotRevoked(SignedJWT jwt) throws ParseException {
+        String jwtId = jwt.getJWTClaimsSet()
+                          .getJWTID();
+        if (jwtId != null && invalidatedTokenRepository.existsById(jwtId)) {
+            throw new ApiException(ErrorCode.TOKEN_INVALID);
+        }
     }
-    return result.toString();
-  }
 
-  public String getCurrentUserId() {
-    return currentUserService.getCurrentUser().getId();
-  }
+    public ResetPasswordResponse resetPasswordEmail(ResetPasswordRequest request) {
+        User user =
+                userRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        String newPassword = generateRandomString(12);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        emailService.sendTemplateHtmlEmail(
+                EmailDetails.builder()
+                            .to(user.getEmail())
+                            .templateName("reset-password")
+                            .variables(Map.of("userName",
+                                              user.getUsername(),
+                                              "newPassword",
+                                              newPassword,
+                                              "loginUrl",
+                                              "http://localhost8080/auth/lgoin"))
+                            .subject("Password reset request for Your TodoList Account")
+                            .build());
+        return ResetPasswordResponse.builder()
+                                    .message("New password has been sent to your email! Pls check it.")
+                                    .build();
+    }
+
+    public String getCurrentUserId() {
+        return currentUserService.getCurrentUser()
+                                 .getId();
+    }
+
+    private String generateToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        JWTClaimsSet jwtClaimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject(user.getUsername())
+                        .issuer("sontaypham")
+                        .issueTime(new Date())
+                        .expirationTime(
+                                new Date(
+                                        Instant.now()
+                                               .plus(refreshableDuration, ChronoUnit.SECONDS)
+                                               .toEpochMilli()))
+                        .claim("scope", buildScope(user))
+                        .claim("permission", buildPermissions(user))
+                        .claim("userId", user.getId())
+                        .claim("jti",
+                               UUID.randomUUID()
+                                   .toString())
+                        .build();
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+        try {
+            jwsObject.sign(new MACSigner(signerKey));
+            return jwsObject.serialize();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> buildScope(User user) {
+        if (CollectionUtils.isEmpty(user.getRoles())) {
+            return Collections.emptyList();
+        }
+        return user.getRoles()
+                   .stream()
+                   .map(Role :: getName)
+                   .toList();
+    }
+
+    private List<String> buildPermissions(User user) {
+        if (CollectionUtils.isEmpty(user.getRoles())) {
+            return Collections.emptyList();
+        }
+        return user.getRoles()
+                   .stream()
+                   .flatMap(role -> role.getPermissions()
+                                        .stream())
+                   .map(Permission :: getName)
+                   .distinct()
+                   .toList();
+    }
+
 }

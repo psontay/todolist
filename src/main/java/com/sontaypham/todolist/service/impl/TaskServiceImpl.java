@@ -56,9 +56,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "task-statistics",
-            key = "#root.target.getCurrentUserId()",
-            allEntries = true)
     @Cacheable(cacheNames = "task-list",
             key = "#root.target.getCurrentUserId()")
     public List<TaskResponse> getAllTasksOfCurrentUser() {
@@ -141,9 +138,7 @@ public class TaskServiceImpl implements TaskService {
         response.setResults(matched);
         return response;
     }
-
-    @CacheEvict(cacheNames = "task-by-status",
-            key = "#root.target.getCurrentUserId()")
+    
     @Override
     public List<TaskResponse> sortTasksByStatus() {
         User user = currentUserService.getCurrentUser();
