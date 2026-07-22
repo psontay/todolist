@@ -73,15 +73,11 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(cacheNames = "task-by-id",
             key = "#id")
     public TaskResponse getTaskById(String id) {
-        User user = currentUserService.getCurrentUser();
-        Set<Task> currentTasks = user.getTasks();
-        Task isExistsTask =
-                currentTasks.stream()
-                            .filter(task -> task.getId()
-                                                .equals(id))
-                            .findFirst()
-                            .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
-        return taskMapper.toTaskResponse(isExistsTask);
+        String userId = getCurrentUserId();
+        Task task =
+                taskRepository.findByIdAndUserId(id, userId)
+                              .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+        return taskMapper.toTaskResponse(task);
     }
 
     @Override
