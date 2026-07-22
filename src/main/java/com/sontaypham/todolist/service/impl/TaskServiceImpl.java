@@ -88,18 +88,15 @@ public class TaskServiceImpl implements TaskService {
     @CachePut(cacheNames = "task-by-id",
             key = "#id")
     public TaskResponse updateTask(String id, TaskUpdateRequest request) {
-        User user = currentUserService.getCurrentUser();
+        String userId = getCurrentUserId();
         Task existingTask =
-                user.getTasks()
-                    .stream()
-                    .filter(obj -> obj.getId()
-                                      .equals(id))
-                    .findFirst()
-                    .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
+                taskRepository.findByIdAndUserId(id, userId)
+                              .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
         existingTask.setTitle(request.getTitle());
         existingTask.setStatus(request.getStatus());
         existingTask.setDeadline(request.getDeadline());
         existingTask.setWarningEmailSent(false);
+
         taskRepository.save(existingTask);
         return taskMapper.toTaskResponse(existingTask);
     }
@@ -111,18 +108,10 @@ public class TaskServiceImpl implements TaskService {
             allEntries = true)
     @Transactional
     public void deleteTask(String id) {
-        User user = currentUserService.getCurrentUser();
-        Set<Task> tasks = user.getTasks();
+        String userId = getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(id, userId)
+                                  .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
 
-        Task task =
-                user.getTasks()
-                    .stream()
-                    .filter(obj -> obj.getId()
-                                      .equals(id))
-                    .findFirst()
-                    .orElseThrow(() -> new ApiException(ErrorCode.TASK_NOT_FOUND));
-
-        tasks.remove(task);
         log.info("Deleting task with id {}", id);
         taskRepository.delete(task);
     }
@@ -131,13 +120,11 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(cacheNames = "task-by-status",
             key = "#status + '_' + #root.target.getCurrentUserId()")
     public List<TaskResponse> getTasksByStatus(TaskStatus status) {
-        User user = currentUserService.getCurrentUser();
-        Set<Task> currentTasks = user.getTasks();
-        return currentTasks.stream()
-                           .filter(obj -> obj.getStatus()
-                                             .equals(status))
-                           .map(taskMapper :: toTaskResponse)
-                           .toList();
+        String userId = getCurrentUserId();
+        return taskRepository.findByUserIdAndStatus(userId, status)
+                             .stream()
+                             .map(taskMapper :: toTaskResponse)
+                             .toList();
     }
 
     @Override
@@ -145,15 +132,11 @@ public class TaskServiceImpl implements TaskService {
             cacheNames = "task-by-keyword",
             key = "#keyword + '_' + #root.target.getCurrentUserId()")
     public TaskSearchResponse searchTasks(String keyword) {
-        User user = currentUserService.getCurrentUser();
-        Set<Task> currentTasks = user.getTasks();
-        List<TaskResponse> matched =
-                currentTasks.stream()
-                            .filter(obj -> obj.getTitle()
-                                              .toLowerCase()
-                                              .contains(keyword.toLowerCase()))
-                            .map(taskMapper :: toTaskResponse)
-                            .toList();
+        String userId = getCurrentUserId();
+        List<TaskResponse> matched = taskRepository.findByUserIdAndTitleContainingIgnoreCase(userId, keyword)
+                                                   .stream()
+                                                   .map(taskMapper :: toTaskResponse)
+                                                   .toList();
         TaskSearchResponse response = new TaskSearchResponse();
         response.setResults(matched);
         return response;
@@ -214,15 +197,10 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(cacheNames = "task-statistics",
             key = "#root.target.getCurrentUserId()")
     public TaskStatisticsResponse getStatistics() {
-        User user = currentUserService.getCurrentUser();
-        Set<Task> tasks = user.getTasks();
-        long total = tasks.size();
-        long pending = tasks.stream()
-                            .filter(t -> t.getStatus() == TaskStatus.PENDING)
-                            .count();
-        long completed = tasks.stream()
-                              .filter(t -> t.getStatus() == TaskStatus.COMPLETED)
-                              .count();
+        String userId = getCurrentUserId();
+        long total = taskRepository.countByUserId(userId);
+        long pending = taskRepository.countByUserIdAndStatus(userId, TaskStatus.PENDING);
+        long completed = taskRepository.countByUserIdAndStatus(userId, TaskStatus.COMPLETED);
 
         return TaskStatisticsResponse.builder()
                                      .total(total)
