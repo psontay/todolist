@@ -27,4 +27,4 @@ replay_pid*
 src/main/resources/application.yaml
 .env
 .idea
-.mvn
+.mvn/wrapper
