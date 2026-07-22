@@ -9,20 +9,27 @@ import com.sontaypham.todolist.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserCrudController extends BaseController {
 
   private final UserService userService;
 
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<ApiResponse<UserResponse>> create(
       @Valid @RequestBody UserCreationRequest request) {
-    return buildSuccessCreatedResponse("User created successfully", userService.create(request));
+      log.info("REST request to create User with username: {}", request.getUsername());
+      UserResponse response = userService.create(request);
+      log.debug("User created successfully: {}", response.getId());
+      return buildSuccessCreatedResponse("User created successfully", response);
   }
 
   @GetMapping
