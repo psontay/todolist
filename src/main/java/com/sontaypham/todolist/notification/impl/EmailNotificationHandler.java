@@ -1,9 +1,9 @@
-package com.sontaypham.todolist.nofitication.impl;
+package com.sontaypham.todolist.notification.impl;
 
 import com.sontaypham.todolist.dto.request.NotificationRequest;
 import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.enums.NotificationChannel;
-import com.sontaypham.todolist.nofitication.NotificationHandler;
+import com.sontaypham.todolist.notification.NotificationHandler;
 import com.sontaypham.todolist.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,9 +1,10 @@
 package com.sontaypham.todolist.configuration;
 
-import com.sontaypham.todolist.entities.EmailDetails;
+import com.sontaypham.todolist.dto.request.NotificationRequest;
 import com.sontaypham.todolist.entities.Task;
+import com.sontaypham.todolist.enums.NotificationChannel;
+import com.sontaypham.todolist.notification.NotificationFactory;
 import com.sontaypham.todolist.repository.TaskRepository;
-import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,7 +25,7 @@ import java.util.Map;
 public class TaskDeadlineNotifier {
 
     TaskRepository taskRepository;
-    EmailService emailService;
+    NotificationFactory notificationFactory;
 
     @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
     public void checkAndSendDeadlineWarnings() {
@@ -54,20 +55,20 @@ public class TaskDeadlineNotifier {
                     && now.isBefore(task.getDeadline())
                     && Boolean.FALSE.equals(task.getWarningEmailSent())) {
                 log.info("Sending warning email for task: {}", task.getId());
-                emailService.sendTemplateHtmlEmail(
-                        EmailDetails.builder()
-                                    .to(task.getUser()
-                                            .getEmail())
-                                    .templateName("deadline-notifier")
-                                    .subject("⏰ Task approaching deadline!")
-                                    .variables(Map.of(
-                                            "taskTitle",
-                                            task.getTitle(),
-                                            "deadline",
-                                            task.getDeadline()
-                                                .toString()
-                                                     ))
-                                    .build());
+                NotificationRequest request = NotificationRequest.builder()
+                                                                 .to(task.getUser()
+                                                                         .getEmail())
+                                                                 .subject("⏰ Task approaching deadline!")
+                                                                 .templateName("deadline-notifier")
+                                                                 .variables(Map.of(
+                                                                         "taskTitle",
+                                                                         task.getTitle(),
+                                                                         "deadline",
+                                                                         task.getDeadline()
+                                                                             .toString()
+                                                                                  ))
+                                                                 .build();
+                notificationFactory.sendNotification(NotificationChannel.EMAIL, request);
                 task.setWarningEmailSent(true);
                 taskRepository.save(task);
                 log.info("Email sent and task {} updated with warningEmailSent = true", task.getId());

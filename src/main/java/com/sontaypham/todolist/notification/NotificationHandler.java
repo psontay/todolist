@@ -1,4 +1,4 @@
-package com.sontaypham.todolist.nofitication;
+package com.sontaypham.todolist.notification;
 
 import com.sontaypham.todolist.dto.request.NotificationRequest;
 import com.sontaypham.todolist.enums.NotificationChannel;

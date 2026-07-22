@@ -1,13 +1,15 @@
-package com.sontaypham.todolist.nofitication;
+package com.sontaypham.todolist.notification;
 
 import com.sontaypham.todolist.dto.request.NotificationRequest;
 import com.sontaypham.todolist.enums.NotificationChannel;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Component
 public class NotificationFactory {
 
     private final Map<NotificationChannel, NotificationHandler> handlerMap;
