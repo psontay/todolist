@@ -1,10 +1,10 @@
 package com.sontaypham.todolist.service.impl;
 
+import com.sontaypham.todolist.dto.event.UserCreatedEvent;
 import com.sontaypham.todolist.dto.request.TaskUpdateRequest;
 import com.sontaypham.todolist.dto.request.UserCreationRequest;
 import com.sontaypham.todolist.dto.request.UserUpdateRequest;
 import com.sontaypham.todolist.dto.response.UserResponse;
-import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.Role;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
@@ -15,7 +15,6 @@ import com.sontaypham.todolist.mapper.UserMapper;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.repository.UserRepository;
-import com.sontaypham.todolist.service.EmailService;
 import com.sontaypham.todolist.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +24,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,7 +52,7 @@ public class UserServiceImpl implements UserService {
     UserMapper userMapper;
     RoleRepository roleRepository;
     TaskRepository taskRepository;
-    EmailService emailService;
+    ApplicationEventPublisher eventPublisher;
 
     @Override
     @CacheEvict(
@@ -76,14 +75,7 @@ public class UserServiceImpl implements UserService {
             log.error(e.getMessage());
             throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
-        EmailDetails emailDetails =
-                EmailDetails.builder()
-                            .to(user.getEmail())
-                            .templateName("welcome")
-                            .variables(Map.of("userName", user.getUsername()))
-                            .subject("Welcome! Your account has created successfully")
-                            .build();
-        emailService.sendTemplateHtmlEmail(emailDetails);
+        eventPublisher.publishEvent(new UserCreatedEvent(this, user));
         return userMapper.toUserResponse(user);
     }
 
