@@ -1,13 +1,14 @@
-package com.sontaypham.todolist.dto.event;
+package com.sontaypham.todolist.dto.event.user;
 
 import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class UserCreatedListener {
     private final EmailService emailService;
 
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleUserCreatedEvent(UserCreatedEvent event) {
         User user = event.getUser();
         log.info("Starting email delivery check for new user: {}", user.getUsername());

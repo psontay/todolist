@@ -1,4 +1,4 @@
-package com.sontaypham.todolist.dto.event;
+package com.sontaypham.todolist.dto.event.user;
 
 import com.sontaypham.todolist.entities.User;
 import lombok.Getter;
