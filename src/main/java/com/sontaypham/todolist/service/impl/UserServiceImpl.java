@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,24 +62,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse create(UserCreationRequest request) {
         log.info("Creating new user: {}", request.getUsername());
         User user = userMapper.toUser(request);
-        String emailMessageBody =
-                "Hello "
-                        + user.getUsername()
-                        + "! Congratulations! Your account has been successfully created on "
-                        + "TodoList App.\n"
-                        + "\n"
-                        + "You can now log in and start managing your tasks more efficiently.\n"
-                        + "\n"
-                        + "Wishing you a productive and successful day \uD83D\uDCAA\n"
-                        + "\n"
-                        + "Best regards,  \n"
-                        + "SonTayPham - The TodoList App's Admin";
-        EmailDetails emailDetails =
-                EmailDetails.builder()
-                            .to(user.getEmail())
-                            .messageBody(emailMessageBody)
-                            .subject("Welcome! Your account has created successfully ✔")
-                            .build();
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         var role =
                 roleRepository
@@ -93,7 +76,14 @@ public class UserServiceImpl implements UserService {
             log.error(e.getMessage());
             throw new ApiException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
-        emailService.sendTextEmail(emailDetails);
+        EmailDetails emailDetails =
+                EmailDetails.builder()
+                            .to(user.getEmail())
+                            .templateName("welcome")
+                            .variables(Map.of("userName", user.getUsername()))
+                            .subject("Welcome! Your account has created successfully")
+                            .build();
+        emailService.sendTemplateHtmlEmail(emailDetails);
         return userMapper.toUserResponse(user);
     }
 

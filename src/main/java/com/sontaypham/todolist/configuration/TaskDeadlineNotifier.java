@@ -4,11 +4,6 @@ import com.sontaypham.todolist.entities.EmailDetails;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.service.EmailService;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,54 +11,68 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE,
+        makeFinal = true)
 public class TaskDeadlineNotifier {
-  TaskRepository taskRepository;
-  EmailService emailService;
 
-  @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
-  public void checkAndSendDeadlineWarnings() {
-    LocalDateTime now = LocalDateTime.now();
-    log.info("Running TaskDeadlineNotifier at {}", now);
-    List<Task> tasks = taskRepository.findAll();
-    log.info("Found {} tasks to evaluate", tasks.size());
+    TaskRepository taskRepository;
+    EmailService emailService;
 
-    for (Task task : tasks) {
-      if (task.getDeadline() == null || task.getCreatedAt() == null) {
-        log.warn("Skipping task {} due to null createdAt or deadline", task.getId());
-        continue;
-      }
+    @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000)
+    public void checkAndSendDeadlineWarnings() {
+        LocalDateTime now = LocalDateTime.now();
+        log.info("Running TaskDeadlineNotifier at {}", now);
+        List<Task> tasks = taskRepository.findByWarningEmailSentFalseAndDeadlineAfter(now);
+        log.info("Found {} tasks to evaluate", tasks.size());
 
-      Duration total = Duration.between(task.getCreatedAt(), task.getDeadline());
-      Duration threshold = total.multipliedBy(4).dividedBy(5);
-      LocalDateTime sendTime = task.getCreatedAt().plus(threshold);
-      log.info(
-          "Task {} - now: {}, sendTime: {}, warningEmailSent: {}",
-          task.getId(),
-          now,
-          sendTime,
-          task.getWarningEmailSent());
-      if (now.isAfter(sendTime)
-          && now.isBefore(task.getDeadline())
-          && Boolean.FALSE.equals(task.getWarningEmailSent())) {
-        log.info("Sending warning email for task: {}", task.getId());
-        emailService.sendTemplateHtmlEmail(
-            EmailDetails.builder()
-                .to(task.getUser().getEmail())
-                    .templateName("deadline-notifier")
-                .subject("⏰ Task approaching deadline!")
-                    .variables(Map.of(
-                            "taskTitle" , task.getTitle(),
-                            "deadline" , task.getDeadline().toString()
-                                     ))
-                .build());
-        task.setWarningEmailSent(true);
-        taskRepository.save(task);
-        log.info("Email sent and task {} updated with warningEmailSent = true", task.getId());
-      }
+        for (Task task : tasks) {
+            if (task.getDeadline() == null || task.getCreatedAt() == null) {
+                log.warn("Skipping task {} due to null createdAt or deadline", task.getId());
+                continue;
+            }
+
+            Duration total = Duration.between(task.getCreatedAt(), task.getDeadline());
+            Duration threshold = total.multipliedBy(4)
+                                      .dividedBy(5);
+            LocalDateTime sendTime = task.getCreatedAt()
+                                         .plus(threshold);
+            log.info(
+                    "Task {} - now: {}, sendTime: {}, warningEmailSent: {}",
+                    task.getId(),
+                    now,
+                    sendTime,
+                    task.getWarningEmailSent());
+            if (now.isAfter(sendTime)
+                    && now.isBefore(task.getDeadline())
+                    && Boolean.FALSE.equals(task.getWarningEmailSent())) {
+                log.info("Sending warning email for task: {}", task.getId());
+                emailService.sendTemplateHtmlEmail(
+                        EmailDetails.builder()
+                                    .to(task.getUser()
+                                            .getEmail())
+                                    .templateName("deadline-notifier")
+                                    .subject("⏰ Task approaching deadline!")
+                                    .variables(Map.of(
+                                            "taskTitle",
+                                            task.getTitle(),
+                                            "deadline",
+                                            task.getDeadline()
+                                                .toString()
+                                                     ))
+                                    .build());
+                task.setWarningEmailSent(true);
+                taskRepository.save(task);
+                log.info("Email sent and task {} updated with warningEmailSent = true", task.getId());
+            }
+        }
     }
-  }
+
 }

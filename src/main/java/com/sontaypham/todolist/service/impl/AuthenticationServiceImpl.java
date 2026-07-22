@@ -79,6 +79,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${app.jwt.refreshableDuration}")
     public long refreshableDuration;
 
+    @NonFinal
+    @Value("${app.login-url}")
+    String loginUrl;
+
     public static String generateRandomString(int length) {
         StringBuilder result = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
@@ -239,7 +243,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                                               "newPassword",
                                               newPassword,
                                               "loginUrl",
-                                              "http://localhost8080/auth/lgoin"))
+                                              loginUrl))
                             .subject("Password reset request for Your TodoList Account")
                             .build());
         return ResetPasswordResponse.builder()

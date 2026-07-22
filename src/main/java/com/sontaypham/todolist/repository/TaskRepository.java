@@ -6,6 +6,7 @@ import com.sontaypham.todolist.enums.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,5 +28,7 @@ public interface TaskRepository extends JpaRepository<Task, String> {
     long countByUserIdAndStatus(String userId, TaskStatus status);
 
     String user(User user);
+
+    List<Task> findByWarningEmailSentFalseAndDeadlineAfter(LocalDateTime dateTime);
 
 }

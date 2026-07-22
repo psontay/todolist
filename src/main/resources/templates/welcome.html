@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style th:inline="css">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .card {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            font-size: 24px;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777777;
+            border-top: 1px solid #eeeeee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="header">Welcome to TodoList! ✔</div>
+    <div class="content">
+        <p>Hello <strong th:text="${userName}">User</strong>,</p>
+        <p>Congratulations! Your account has been successfully created on <strong>TodoList App</strong>.</p>
+        <p>You can now log in and start managing your tasks more efficiently. Let's make today highly productive!</p>
+    </div>
+    <div class="footer">
+        Best regards,<br>
+        <strong>SonTayPham</strong> - The TodoList App Administrator
+    </div>
+</div>
+</body>
+</html>
