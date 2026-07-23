@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,8 +39,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString(exclude = "user")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Task {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true,
+        callSuper = false)
+public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -53,8 +53,6 @@ public class Task {
     @Enumerated(EnumType.STRING)
     TaskStatus status;
 
-    LocalDateTime createdAt;
-
     @Column(name = "deadline")
     LocalDateTime deadline;
 
@@ -64,10 +62,5 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
 
 }

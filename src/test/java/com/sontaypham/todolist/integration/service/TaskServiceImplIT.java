@@ -44,9 +44,9 @@ class TaskServiceImplIT {
             .id("task1")
             .title("Task Title")
             .status(TaskStatus.PENDING)
-            .createdAt(LocalDateTime.now())
             .user(mockUser)
             .build();
+    mockTask.setCreatedAt(LocalDateTime.now());
     mockUser.getTasks().add(mockTask);
   }
 

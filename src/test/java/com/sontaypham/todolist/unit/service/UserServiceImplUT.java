@@ -19,6 +19,9 @@ import com.sontaypham.todolist.exception.ErrorCode;
 import com.sontaypham.todolist.mapper.UserMapper;
 import com.sontaypham.todolist.repository.RoleRepository;
 import com.sontaypham.todolist.repository.UserRepository;
+import com.sontaypham.todolist.repository.TaskRepository;
+import com.sontaypham.todolist.repository.OutboxRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sontaypham.todolist.service.impl.UserServiceImpl;
 import java.util.HashSet;
 import java.util.Optional;
@@ -48,6 +51,12 @@ public class UserServiceImplUT {
   @Mock PasswordEncoder passwordEncoder;
 
   @Mock RoleRepository roleRepository;
+
+  @Mock TaskRepository taskRepository;
+
+  @Mock OutboxRepository outboxRepository;
+
+  @Mock ObjectMapper objectMapper;
 
   User user;
   UserResponse userResponse;
@@ -120,7 +129,7 @@ public class UserServiceImplUT {
 
     SecurityContextHolder.setContext(securityContext);
 
-    when(userRepository.findByUsername("sontaypham")).thenReturn(Optional.empty());
+    when(userRepository.findById("sontaypham")).thenReturn(Optional.empty());
 
     ApiException exception =
         assertThrows(
