@@ -60,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
             key = "#root.target.getCurrentUserId()")
     public List<TaskResponse> getAllTasksOfCurrentUser() {
         String userId = getCurrentUserId();
-        return taskRepository.findByUserId(userId)
+        return taskRepository.findByUserIdWithUser(userId)
                              .stream()
                              .map(taskMapper :: toTaskResponse)
                              .toList();
@@ -138,7 +138,7 @@ public class TaskServiceImpl implements TaskService {
         response.setResults(matched);
         return response;
     }
-    
+
     @Override
     public List<TaskResponse> sortTasksByStatus() {
         User user = currentUserService.getCurrentUser();

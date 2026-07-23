@@ -1,12 +1,38 @@
 package com.sontaypham.todolist.entities;
 
 import com.sontaypham.todolist.enums.TaskStatus;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "tasks",
+        indexes = {
+                @Index(name = "idx_task_user_id",
+                        columnList = "user_id"),
+                @Index(name = "idx_task_user_status",
+                        columnList = "user_id, status")
+        })
 @Builder
 @Getter
 @Setter
@@ -16,30 +42,32 @@ import lombok.experimental.FieldDefaults;
 @ToString(exclude = "user")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Task {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @EqualsAndHashCode.Include
-  String id;
 
-  String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include
+    String id;
 
-  @Enumerated(EnumType.STRING)
-  TaskStatus status;
+    String title;
 
-  LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    TaskStatus status;
 
-  @Column(name = "deadline")
-  LocalDateTime deadline;
+    LocalDateTime createdAt;
 
-  @Column(name = "warning_email_sent")
-  Boolean warningEmailSent = false;
+    @Column(name = "deadline")
+    LocalDateTime deadline;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  User user;
+    @Column(name = "warning_email_sent")
+    Boolean warningEmailSent = false;
 
-  @PrePersist
-  public void prePersist() {
-    this.createdAt = LocalDateTime.now();
-  }
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    User user;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
 }

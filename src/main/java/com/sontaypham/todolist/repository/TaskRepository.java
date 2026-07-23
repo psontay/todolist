@@ -4,6 +4,8 @@ import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
 import com.sontaypham.todolist.enums.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,7 +17,8 @@ public interface TaskRepository extends JpaRepository<Task, String> {
 
     Optional<Task> findById(String id);
 
-    List<Task> findByUserId(String userId);
+    @Query("select t from Task t join fetch t.user where t.user.id = :userId")
+    List<Task> findByUserIdWithUser(@Param("userId") String userId);
 
     Optional<Task> findByIdAndUserId(String id, String userId);
 

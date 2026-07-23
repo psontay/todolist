@@ -1,12 +1,13 @@
 package com.sontaypham.todolist.configuration;
 
-import com.sontaypham.todolist.entities.EmailDetails;
+import com.sontaypham.todolist.dto.request.NotificationRequest;
 import com.sontaypham.todolist.entities.Task;
 import com.sontaypham.todolist.entities.User;
+import com.sontaypham.todolist.enums.NotificationChannel;
 import com.sontaypham.todolist.enums.TaskStatus;
+import com.sontaypham.todolist.notification.NotificationFactory;
 import com.sontaypham.todolist.repository.TaskRepository;
 import com.sontaypham.todolist.repository.UserRepository;
-import com.sontaypham.todolist.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +28,7 @@ import java.util.Map;
 public class TaskStatisticsWeekly {
 
     TaskRepository taskRepository;
-    EmailService emailService;
+    NotificationFactory notificationFactory;
     UserRepository userRepository;
 
     @Scheduled(cron = "0 0 0 * * SUN")
@@ -54,19 +55,19 @@ public class TaskStatisticsWeekly {
 
                 List<Task> pendingTasks = taskRepository.findByUserIdAndStatus(user.getId(), TaskStatus.PENDING);
 
-                emailService.sendTemplateHtmlEmail(
-                        EmailDetails.builder()
-                                    .subject("Your Weekly Task Summary")
-                                    .to(user.getEmail())
-                                    .templateName("task-statistics")
-                                    .variables(Map.of(
-                                            "total", total,
-                                            "completed", completed,
-                                            "pending", pending,
-                                            "username", user.getUsername(),
-                                            "pendingTasks", pendingTasks
-                                                     ))
-                                    .build());
+                NotificationRequest request = NotificationRequest.builder()
+                                                                 .subject("Your Weekly Task Summary")
+                                                                 .to(user.getEmail())
+                                                                 .templateName("task-statistics")
+                                                                 .variables(Map.of(
+                                                                         "total", total,
+                                                                         "completed", completed,
+                                                                         "pending", pending,
+                                                                         "username", user.getUsername(),
+                                                                         "pendingTasks", pendingTasks
+                                                                                  ))
+                                                                 .build();
+                notificationFactory.sendNotification(NotificationChannel.EMAIL, request);
             }
             pageNumber++;
         }
