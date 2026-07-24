@@ -1,4 +1,21 @@
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
-COPY target/todolist-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java" , "-jar" , "app-jar"]
+
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw
+
+RUN ./mvnw dependency:go-offline
+
+COPY src ./src
+RUN ./mvnw clean package -DskipTests
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
+
+COPY .env .
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
