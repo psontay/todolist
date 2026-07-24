@@ -15,7 +15,5 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
 
-COPY .env .
-
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
